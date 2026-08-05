@@ -1,31 +1,103 @@
-<h1>Products</h1>
-<p class="sub">Manage your product catalog, pricing and stock
-  @if (lowStockCount()) { · <b>{{ lowStockCount() }} need restocking</b> }
-</p>
-
 <div class="toolbar">
-  <input placeholder="Search products or SKU…" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  <div class="search-mini">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+    <input placeholder="Search products…" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  </div>
+  <select [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)">
+    <option value="">All categories</option>
+    @for (c of categories(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+  </select>
   <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
     <option value="">All statuses</option>
     <option>Active</option><option>Low Stock</option><option>Out of Stock</option>
   </select>
-  <small>{{ filtered().length }} of {{ products().length }} products</small>
+  <span class="spacer"></span>
+  <button class="btn btn-flame" (click)="openAdd()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+    Add Product
+  </button>
 </div>
 
 <div class="tcard">
   <table>
-    <thead><tr><th>Product</th><th>Price</th><th>Final Price</th><th>Stock</th><th>Status</th><th>SKU</th></tr></thead>
+    <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>SKU</th></tr></thead>
     <tbody>
       @for (p of filtered(); track p.id) {
-        <tr>
-          <td>{{ p.emoji }} {{ p.name }}</td>
-          <td>${{ p.price }}@if (p.discount) { <small class="disc">-{{ p.discount }}%</small> }</td>
-          <td><b>${{ finalPrice(p) }}</b></td>
+        <tr (click)="openEdit(p)">
+          <td>
+            <div class="cell-flex">
+              <span class="thumb">{{ p.emoji }}</span>
+              <div>
+                <div class="cell-title">{{ p.name }}</div>
+                <div class="cell-sub">{{ p.discount ? 'Discount ' + p.discount + '%' : 'No discount' }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ subLabel(p.sub) }}</td>
+          <td><b>${{ finalPrice(p) }}</b>@if (p.discount) { <small class="old">${{ p.price }}</small> }</td>
           <td>{{ p.stock }}</td>
           <td><span [class]="'badge ' + stockBadge(p)">{{ stockStatus(p.stock) }}</span></td>
-          <td>{{ p.sku }}</td>
+          <td class="sku">{{ p.sku }}</td>
         </tr>
       }
     </tbody>
   </table>
 </div>
+
+<!-- ============ ADD / EDIT PRODUCT MODAL ============ -->
+@if (modalOpen()) {
+  <div class="overlay" (click)="close()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ editing() ? 'Edit Product' : 'Add Product' }}</h3>
+        <button class="modal-close" (click)="close()">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="full">Product Name
+          <input [ngModel]="form().name" (ngModelChange)="patch('name', $event)">
+        </label>
+        <div class="row2">
+          <label>Category / Sub-category
+            <select [ngModel]="form().sub" (ngModelChange)="patch('sub', $event)">
+              @for (o of subOptions(); track o.id) { <option [value]="o.id">{{ o.label }}</option> }
+            </select>
+          </label>
+          <label>SKU
+            <input [ngModel]="form().sku" (ngModelChange)="patch('sku', $event)">
+          </label>
+        </div>
+        <div class="row2">
+          <label>Price ($)
+            <input type="number" [ngModel]="form().price" (ngModelChange)="patch('price', $event)">
+          </label>
+          <label>Discount (%)
+            <input type="number" [ngModel]="form().discount" (ngModelChange)="patch('discount', $event)">
+          </label>
+        </div>
+        <div class="row2">
+          <label>Stock Quantity
+            <input type="number" [ngModel]="form().stock" (ngModelChange)="patch('stock', $event)">
+          </label>
+          <label>Status
+            <input [value]="form().stock === null ? '—' : stockStatus(form().stock!)" disabled title="Derived automatically from stock quantity">
+          </label>
+        </div>
+        <label class="full">Short Description
+          <input [ngModel]="form().shortDesc" (ngModelChange)="patch('shortDesc', $event)">
+        </label>
+        <label class="full">Full Description
+          <textarea [ngModel]="form().fullDesc" (ngModelChange)="patch('fullDesc', $event)"></textarea>
+        </label>
+        <label class="full">Product Images
+          <div class="img-row">
+            @for (i of [1, 2, 3, 4, 5]; track i) { <div class="img-slot">＋</div> }
+          </div>
+        </label>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" (click)="close()">Cancel</button>
+        <button class="btn btn-dark" (click)="save()">Save Product</button>
+      </div>
+    </div>
+  </div>
+}
