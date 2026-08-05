@@ -1,0 +1,21 @@
+<h1>Reports</h1>
+<p class="sub">Sales and order performance · <b>${{ bookedRevenue() }}</b> booked in the current order book</p>
+
+<div class="two">
+  <div class="tcard pad">
+    <h3>Orders by Status</h3>
+    @for (s of statusCounts(); track s[0]) {
+      <div class="rrow">
+        <span [class]="'badge ' + badgeClass(s[0])">{{ s[0] }}</span>
+        <div class="bar"><i [style.width.%]="(s[1] / maxStatusCount()) * 100"></i></div>
+        <b>{{ s[1] }}</b>
+      </div>
+    }
+  </div>
+  <div class="tcard pad">
+    <h3>Top Products by Price Point</h3>
+    @for (p of topProducts(); track p.id) {
+      <div class="rrow"><span>{{ p.emoji }} {{ p.name }}</span><b>${{ p.price }}</b></div>
+    }
+  </div>
+</div>

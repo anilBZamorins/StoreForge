@@ -1,0 +1,17 @@
+<h1>Store Settings</h1>
+<p class="sub">Branding, contact info, footer and social links</p>
+
+<div class="tcard pad">
+  <label>Store Name <input [ngModel]="storeName()" (ngModelChange)="storeName.set($event)"></label>
+  <label>Store Domain <input [value]="domain" disabled></label>
+  <label>Support Email <input [ngModel]="supportEmail()" (ngModelChange)="supportEmail.set($event)"></label>
+  <label>Theme Color
+    <span class="swatches">
+      @for (c of colors; track c) {
+        <button class="sw" [style.background]="c" [class.sel]="c === themeColor()" (click)="themeColor.set(c)"></button>
+      }
+    </span>
+  </label>
+  <button class="btn btn-dark" (click)="save()">Save Changes</button>
+  @if (saved()) { <span class="ok">✓ Settings saved</span> }
+</div>

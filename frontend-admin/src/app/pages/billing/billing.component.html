@@ -1,0 +1,46 @@
+<h1>Billing & Subscription</h1>
+<p class="sub">Manage your StoreForge plan and payment history</p>
+
+<div class="current premium-band">
+  <div>
+    <div class="cp-meta">CURRENT PLAN</div>
+    <div class="cp-plan">{{ currentPlan() }}</div>
+    <div class="cp-meta">Renews on August 9, 2026 · Visa ending 4242 · ${{ totalPaid() }} paid to date</div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <span [class.on]="!yearly()">Monthly</span>
+  <button class="switch" [class.yearly]="yearly()" (click)="yearly.set(!yearly())"><span class="knob"></span></button>
+  <span [class.on]="yearly()">Yearly</span>
+  <small class="save">Save 20%</small>
+</div>
+
+<div class="plans">
+  @for (p of plans(); track p.name) {
+    <div class="pcard tcard" [class.current]="p.name === currentPlan()">
+      <b>{{ p.name }}</b>
+      <div class="pr">{{ price(p) }}</div>
+      <ul>@for (f of p.feats; track f) { <li>✓ {{ f }}</li> }</ul>
+      @if (p.name === currentPlan()) {
+        <span class="badge b-delivered">Current plan</span>
+      } @else {
+        <button class="btn btn-dark" (click)="choosePlan(p)">Switch to {{ p.name }}</button>
+      }
+    </div>
+  }
+</div>
+
+<div class="tcard">
+  <table>
+    <thead><tr><th>Invoice</th><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>
+      @for (i of invoices(); track i.id) {
+        <tr>
+          <td>{{ i.id }}</td><td>{{ i.date }}</td><td>{{ i.plan }}</td><td>${{ i.amount }}</td>
+          <td><span class="badge b-delivered">{{ i.status }}</span></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

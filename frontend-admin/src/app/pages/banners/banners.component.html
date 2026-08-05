@@ -1,0 +1,18 @@
+<h1>Banners</h1>
+<p class="sub">Manage homepage, category and offer banners</p>
+
+<div class="grid">
+  @for (b of banners(); track b.id) {
+    <div class="bcard">
+      <div class="art" [style.background]="gradient(b)">{{ b.title }}</div>
+      <div class="info">
+        <b>{{ b.kind }}</b>
+        <span>{{ b.sub }}</span>
+        <div class="foot">
+          <span [class]="'badge ' + (b.status === 'Active' ? 'b-delivered' : 'b-inactive')">{{ b.status }}</span>
+          <button class="link" (click)="toggleStatus(b)">{{ b.status === 'Active' ? 'Deactivate' : 'Activate' }}</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

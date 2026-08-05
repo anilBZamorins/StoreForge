@@ -1,0 +1,41 @@
+<h1>Orders</h1>
+<p class="sub">Track and fulfil customer orders</p>
+
+<div class="toolbar">
+  <input placeholder="Search order ID or customer…" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+    <option value="">All statuses</option>
+    @for (s of statuses; track s) { <option>{{ s }}</option> }
+  </select>
+  <small>{{ filtered().length }} of {{ orders().length }} orders</small>
+</div>
+
+<div class="tcard">
+  <table>
+    <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      @for (o of filtered(); track o.id) {
+        <tr (click)="selected.set(o)">
+          <td><b>{{ o.id }}</b></td><td>{{ o.customer }}</td><td>{{ o.date }}</td>
+          <td>{{ o.items }}</td><td>${{ o.total }}</td>
+          <td><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></td>
+          <td>
+            @if (canAdvance(o)) {
+              <button class="adv" (click)="advance(o); $event.stopPropagation()">→ {{ nextStatus(o) }}</button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (selected(); as o) {
+  <div class="detail tcard">
+    <h3>Order {{ o.id }} — {{ o.customer }}</h3>
+    <div class="drow"><span>Phone</span><span>{{ o.phone }}</span></div>
+    <div class="drow"><span>Delivery address</span><span>{{ o.addr }}</span></div>
+    <div class="drow"><span>Tracking</span><span>{{ o.tracking || '—' }}</span></div>
+    <div class="drow"><span>Status</span><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></div>
+  </div>
+}

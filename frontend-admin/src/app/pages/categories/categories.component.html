@@ -1,0 +1,17 @@
+<h1>Categories</h1>
+<p class="sub">Organize categories and sub-categories</p>
+
+<div class="tcard tree">
+  @for (c of categories(); track c.id) {
+    <div class="parent" (click)="toggle(c.id)">
+      <span class="chev" [class.open]="isOpen(c.id)">▸</span>
+      {{ c.name }}
+      <span class="count">{{ totalProducts(c) }} products</span>
+    </div>
+    @if (isOpen(c.id)) {
+      @for (s of c.subs; track s.id) {
+        <div class="child"><span>{{ s.name }}</span><span class="count">{{ s.count }} products</span></div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,62 @@
+<!-- KPI cards with trend bars (mockup: kpi-grid) -->
+<div class="kpi-grid">
+  @for (k of kpis(); track k.label) {
+    <div class="kpi">
+      <div class="kpi-top">
+        <div><div class="kpi-label">{{ k.label }}</div><div class="kpi-value">{{ k.value }}</div></div>
+        <div class="kpi-icon">{{ k.icon }}</div>
+      </div>
+      <div class="kpi-trend">
+        @for (b of k.bars; track $index) { <i [style.height.%]="b * 10"></i> }
+      </div>
+      <div class="kpi-delta" [class.up]="k.up" [class.down]="!k.up">{{ k.delta }}</div>
+    </div>
+  }
+</div>
+
+<!-- Recent Orders + Your Plan (mockup: grid-2) -->
+<div class="grid-2">
+  <div class="card">
+    <div class="section-title"><h3>Recent Orders</h3><a class="link-btn" routerLink="/orders">View all orders →</a></div>
+    <table>
+      <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>
+        @for (o of recentOrders(); track o.id) {
+          <tr>
+            <td><b>{{ o.id }}</b></td><td>{{ o.customer }}</td><td>${{ o.total }}</td>
+            <td><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="section-title"><h3>Your Plan</h3><a class="link-btn" routerLink="/billing">Manage billing →</a></div>
+    <p class="plan-pre">You're on the</p>
+    <div class="plan-name">{{ plan.name }}</div>
+    <p class="plan-meta">{{ plan.priceLabel }} · renews {{ plan.renews }}</p>
+    <p class="plan-usage">{{ plan.productsUsed }} of {{ plan.productLimit.toLocaleString() }} products used</p>
+    <div class="usage-bar"><i [style.width.%]="planUsagePct()"></i></div>
+    <a class="btn btn-flame btn-block" routerLink="/billing">Manage Plan</a>
+  </div>
+</div>
+
+<!-- Carts Pending Checkout (mockup: dashCarts) -->
+<div class="card carts-card">
+  <div class="section-title"><h3>Carts Pending Checkout</h3><a class="link-btn" routerLink="/carts">View all abandoned carts →</a></div>
+  <p class="carts-sub">Some customers take days — even weeks — to come back and check out. Here's what's currently sitting in cart.</p>
+  @for (c of carts(); track c.id) {
+    <div class="cart-row">
+      <span class="cart-avatar">{{ initials(c.customer) }}</span>
+      <div class="cart-info">
+        <b>{{ c.customer }}</b>
+        <span>{{ itemLabel(c) }} · {{ age(c.hoursIdle) }}</span>
+      </div>
+      <div class="cart-right">
+        <b>${{ cartValue(c) }}</b>
+        <span [class]="'badge ' + stateBadge(c)">{{ cartState(c.hoursIdle) }}</span>
+      </div>
+    </div>
+  }
+</div>

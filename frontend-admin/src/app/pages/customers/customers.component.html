@@ -1,0 +1,25 @@
+<h1>Customers</h1>
+<p class="sub">View customers and their order history · average lifetime spend <b>${{ avgSpend() }}</b></p>
+
+<div class="toolbar">
+  <input placeholder="Search name, email or city…" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  <select [ngModel]="sortKey()" (ngModelChange)="sortKey.set($event)">
+    <option value="spent">Sort: Total Spent</option>
+    <option value="orders">Sort: Orders</option>
+    <option value="name">Sort: Name</option>
+  </select>
+</div>
+
+<div class="tcard">
+  <table>
+    <thead><tr><th>Customer</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Joined</th></tr></thead>
+    <tbody>
+      @for (c of filtered(); track c.id) {
+        <tr>
+          <td>{{ c.name }}<br><small>{{ c.email }}</small></td>
+          <td>{{ c.city }}</td><td>{{ c.orders }}</td><td><b>${{ c.spent }}</b></td><td>{{ c.joined }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

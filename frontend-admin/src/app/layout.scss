@@ -1,0 +1,44 @@
+:host { display: flex; min-height: 100vh; background: var(--canvas-admin); }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 236px; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 30;
+  display: flex; flex-direction: column; padding: 20px 12px 12px;
+  background:
+    radial-gradient(ellipse at top left, rgba(255, 90, 54, 0.12) 0%, transparent 45%),
+    var(--grad-ink-vertical);
+  color: #c3cbdc;
+}
+.brand { display: flex; gap: 10px; align-items: flex-start; padding: 0 8px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+.brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--flame); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 15px; flex-shrink: 0; }
+.brand-name { font-family: var(--font-display); font-weight: 700; color: #fff; font-size: 16px; }
+.brand-sub { font-size: 11px; color: #8b96ac; margin-top: 1px; }
+.plan-tag { display: inline-block; margin-top: 6px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; color: #ffcfc0; background: rgba(255,90,54,0.22); padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+
+nav { flex: 1; overflow-y: auto; }
+.navlabel { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: #5c6b85; padding: 14px 10px 6px; font-weight: 600; }
+nav a { display: flex; align-items: center; gap: 11px; padding: 9px 11px; margin-bottom: 2px; border-radius: 8px; font-size: 13.6px; font-weight: 500; color: #c3cbdc; position: relative; }
+nav a svg { width: 17px; height: 17px; flex-shrink: 0; opacity: 0.85; }
+nav a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+nav a.active { background: rgba(255,90,54,0.16); color: #fff; }
+nav a.active svg { opacity: 1; color: var(--flame-soft); }
+nav a.active::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px; background: var(--flame); border-radius: 0 3px 3px 0; }
+.count { margin-left: auto; background: rgba(255,255,255,0.1); color: #dbe1ee; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; }
+nav a.active .count { background: var(--flame); color: #fff; }
+.sidebar-foot { padding: 12px 8px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #6a7690; }
+
+/* ---------- Main / topbar ---------- */
+.main { margin-left: 236px; flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.topbar { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 18px; position: sticky; top: 0; z-index: 20; }
+.page-title { font-family: var(--font-display); font-weight: 700; font-size: 19px; }
+.page-sub { font-size: 12px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
+.search-box { flex: 1; max-width: 380px; margin-left: 24px; display: flex; align-items: center; gap: 8px; background: var(--canvas); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; color: var(--muted); }
+.search-box svg { width: 15px; height: 15px; flex-shrink: 0; }
+.search-box input { border: none; background: transparent; outline: none; font-size: 13px; width: 100%; font-family: var(--font-body); }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.icon-btn { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; color: var(--muted); }
+.icon-btn:hover { background: var(--canvas); }
+.icon-btn svg { width: 17px; height: 17px; }
+.dot-badge { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--danger); border-radius: 50%; border: 1.5px solid #fff; }
+.avatar { width: 36px; height: 36px; border-radius: 9px; background: var(--grad-ink); color: var(--flame-soft); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 13px; cursor: pointer; }
+.content { padding: 26px 28px 60px; }

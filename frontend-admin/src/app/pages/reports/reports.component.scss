@@ -1,0 +1,10 @@
+@use '../shared';
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 1000px) { .two { grid-template-columns: 1fr; } }
+.pad { padding: 20px; }
+h3 { margin: 0 0 14px; font-size: 15px; }
+.rrow { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13.2px; }
+.rrow:last-child { border-bottom: none; }
+.rrow > span:first-child { flex: 0 0 45%; }
+.bar { flex: 1; height: 8px; background: var(--canvas); border-radius: 20px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--flame); border-radius: 20px; }

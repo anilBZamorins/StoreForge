@@ -1,0 +1,16 @@
+// Shared admin page styles — @use '../shared' from any component scss
+h1 { font-size: 22px; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 22px; }
+.tcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13.2px; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; padding: 9px 12px; border-bottom: 1px solid var(--border); background: #fafbfd; }
+td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafd; }
+.toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.toolbar input, .toolbar select {
+  border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px;
+  font-size: 12.8px; font-family: var(--font-body); background: var(--surface); outline: none;
+}
+.toolbar input:focus, .toolbar select:focus { border-color: var(--flame); }
+small { color: var(--muted); }

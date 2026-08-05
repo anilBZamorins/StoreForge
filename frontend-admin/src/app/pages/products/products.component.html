@@ -1,0 +1,31 @@
+<h1>Products</h1>
+<p class="sub">Manage your product catalog, pricing and stock
+  @if (lowStockCount()) { · <b>{{ lowStockCount() }} need restocking</b> }
+</p>
+
+<div class="toolbar">
+  <input placeholder="Search products or SKU…" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+    <option value="">All statuses</option>
+    <option>Active</option><option>Low Stock</option><option>Out of Stock</option>
+  </select>
+  <small>{{ filtered().length }} of {{ products().length }} products</small>
+</div>
+
+<div class="tcard">
+  <table>
+    <thead><tr><th>Product</th><th>Price</th><th>Final Price</th><th>Stock</th><th>Status</th><th>SKU</th></tr></thead>
+    <tbody>
+      @for (p of filtered(); track p.id) {
+        <tr>
+          <td>{{ p.emoji }} {{ p.name }}</td>
+          <td>${{ p.price }}@if (p.discount) { <small class="disc">-{{ p.discount }}%</small> }</td>
+          <td><b>${{ finalPrice(p) }}</b></td>
+          <td>{{ p.stock }}</td>
+          <td><span [class]="'badge ' + stockBadge(p)">{{ stockStatus(p.stock) }}</span></td>
+          <td>{{ p.sku }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

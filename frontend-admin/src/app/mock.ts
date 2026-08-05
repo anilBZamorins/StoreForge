@@ -86,9 +86,22 @@ export const MOCK_INVOICES: Invoice[] = [
 ];
 
 export const MOCK_KPIS = [
-  { label: 'Total Orders', value: '312', delta: '+6.4% vs last week', up: true, icon: '📦' },
-  { label: 'Total Sales', value: '$28,940', delta: '+3.1% vs last week', up: true, icon: '💰' },
-  { label: 'Total Products', value: '146', delta: '+4 new this week', up: true, icon: '🏷️' },
-  { label: 'Total Customers', value: '218', delta: '+9 this week', up: true, icon: '🧑' },
-  { label: 'Pending Orders', value: '6', delta: 'Needs attention', up: false, icon: '⏳' },
+  { label: 'Total Orders', value: '312', delta: '+6.4% vs last week', up: true, icon: '📦', bars: [6, 9, 7, 10, 8, 11, 9] },
+  { label: 'Total Sales', value: '$28,940', delta: '+3.1% vs last week', up: true, icon: '💰', bars: [5, 6, 7, 6, 8, 9, 10] },
+  { label: 'Total Products', value: '146', delta: '+4 new this week', up: true, icon: '🏷️', bars: [7, 7, 7, 8, 8, 8, 9] },
+  { label: 'Total Customers', value: '218', delta: '+9 this week', up: true, icon: '🧑', bars: [4, 5, 5, 6, 7, 7, 8] },
+  { label: 'Pending Orders', value: '6', delta: 'Needs attention', up: false, icon: '⏳', bars: [3, 5, 4, 6, 5, 7, 9] },
 ];
+
+// ---- Dashboard extras (mockup-faithful) ----
+export const MOCK_SIDEBAR_COUNTS = { products: 146, orders: 14, carts: 5 };
+
+export const MOCK_PLAN_INFO = {
+  name: 'Growth Plan',
+  priceLabel: '$49/month',
+  renews: 'Aug 9, 2026',
+  productsUsed: 146,
+  productLimit: 2000,
+};
+
+export const MOCK_USER = { name: 'Nikhil Rao', initials: 'NR', role: 'Store Owner' };
