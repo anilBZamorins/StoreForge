@@ -29,6 +29,7 @@ mkdir -p $APP_DIR && chown -R www-data:www-data $APP_DIR
 
 echo "==> Nginx"
 cp "$(dirname "$0")/../nginx/storeforge.conf" /etc/nginx/sites-available/storeforge.conf
+cp "$(dirname "$0")/../nginx/storeforge-common.conf" /etc/nginx/snippets/storeforge-common.conf
 ln -sf /etc/nginx/sites-available/storeforge.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx

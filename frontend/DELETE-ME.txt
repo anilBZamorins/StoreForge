@@ -1,0 +1,1 @@
+NOTE: 'frontend/' is the OLD single-workspace version — superseded by frontend-website/, frontend-admin/, frontend-storefront/. Safe to delete this whole folder.

@@ -2,48 +2,59 @@
 
 Multi-tenant eCommerce SaaS platform — launch a fully branded online store in minutes.
 
-**Stack:** Angular (frontend) · Laravel REST API (backend) · MySQL · Nginx · DigitalOcean
+**Stack:** Angular (3 apps) · Laravel REST API · MySQL · Nginx · DigitalOcean
 
 ## Repository layout
 
 ```
 StoreForge/
-├── frontend/                  # Angular workspace — one app, 3 lazy areas
-│   └── src/app/
-│       ├── website/           #   /        → marketing site (WEB-*)
-│       ├── admin/             #   /admin   → Store Admin Dashboard (ADM-*)
-│       ├── storefront/        #   /store   → tenant storefront (STF-*)
-│       └── core/              #   API/auth services, tenant resolver, guard
-├── backend/                   # Laravel REST API (initialize per backend/README below)
-│   ├── app/Domain/            #   Tenancy, Billing, Catalog, Orders, Customers, Reports
-│   ├── app/Http/Controllers/  #   Website / StoreAdmin / Storefront / SuperAdmin API controllers
-│   └── database/migrations/   #   landlord/ (platform) + tenant/ (per-store)
-├── deploy/                    # DigitalOcean kit — see deploy/README.md
-└── Documents/                 # BRD, color & design token guide, UI mockups
+├── frontend-website/      # Marketing site  (storeforge.io)          — WEB-* reqs
+├── frontend-admin/        # Store Admin Dashboard                    — ADM-* reqs
+├── frontend-storefront/   # Tenant storefront ({slug}.storeforge.io) — STF-* reqs
+├── backend/               # Laravel REST API (init: see below)
+│   ├── app/Domain/        #   Tenancy, Billing, Catalog, Orders, Customers, Reports
+│   └── database/migrations/  # landlord/ (platform) + tenant/ (per-store)
+├── deploy/                # DigitalOcean kit — see deploy/README.md
+└── Documents/             # BRD, color guide, UI mockups
 ```
 
-## Quick start
+## Mock data ↔ API switch
 
-**Frontend** (Node 20+):
+Every frontend app ships with mock data in `src/app/mock.ts` and runs **without a backend**.
+One flag in `src/environments/environment.ts` controls the source:
+
+```ts
+useMocks: true    // → data served from src/app/mock.ts
+useMocks: false   // → data fetched from the Laravel API at /api/v1
+```
+
+All data access goes through each app's `DataService`, so flipping the flag switches the
+entire app — no component changes needed. In dev, API mode proxies `/api` to
+`http://localhost:8000` (see each app's `proxy.conf.json`).
+
+## Run an app locally (Node 20+)
+
 ```bash
-cd frontend
+cd frontend-admin        # or frontend-website / frontend-storefront
 npm install
-npm start                      # http://localhost:4200, proxies /api → localhost:8000
+npm start                # http://localhost:4200
 ```
 
-**Backend** (PHP 8.3 + Composer) — one-time init:
+## Backend init (PHP 8.3 + Composer, one-time)
+
 ```bash
 composer create-project laravel/laravel /tmp/laravel-fresh
 rsync -a --ignore-existing /tmp/laravel-fresh/ backend/
 cd backend && composer install
-cp .env.example .env && php artisan key:generate    # set DB creds; API-only: no Blade views needed
-php artisan serve                                    # http://localhost:8000
+cp .env.example .env && php artisan key:generate
+php artisan serve        # http://localhost:8000
 ```
 
 ## Deployment
 
-See `deploy/README.md`. In production, Nginx serves the built Angular app
-(`frontend/dist/storeforge-frontend/browser`) and proxies `/api` to PHP-FPM.
+See `deploy/README.md`. Nginx serves each built app by hostname —
+website on the apex domain, storefront on tenant subdomains, admin on admin.storeforge.io —
+and proxies `/api` to PHP-FPM.
 
 ## Reference documents
 
