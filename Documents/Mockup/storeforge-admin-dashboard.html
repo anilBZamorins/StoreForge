@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aura Living — Store Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F172A;
+    --ink-2:#16213e;
+    --flame:#FF5A36;
+    --flame-dim:#FFE3DA;
+    --success:#1F9D55;
+    --danger:#D64545;
+    --info:#2F80ED;
+    --warn:#B4790C;
+    --canvas:#F5F6FA;
+    --surface:#FFFFFF;
+    --text:#101828;
+    --muted:#667085;
+    --border:#E4E7EC;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--text);display:flex;min-height:100vh;font-variant-numeric:tabular-nums;}
+  h1,h2,h3,.font-display{font-family:'Sora',system-ui,sans-serif;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{width:236px;background:linear-gradient(180deg,var(--ink) 0%, var(--ink-2) 100%);color:#dbe1ee;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;padding:20px 0;}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px;}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--flame);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:15px;flex-shrink:0;}
+  .brand-name{font-family:'Sora',sans-serif;font-weight:700;font-size:16.5px;color:#fff;letter-spacing:.2px;}
+  .brand-sub{font-size:11px;color:#8b96ac;margin-top:1px;}
+  .plan-tag{display:inline-block;margin-top:6px;font-size:9.5px;font-weight:700;letter-spacing:.06em;color:#ffcfc0;background:rgba(255,90,54,0.22);padding:2px 8px;border-radius:20px;text-transform:uppercase;}
+
+  nav.navlist{flex:1;overflow-y:auto;padding:4px 12px;}
+  .navlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:#5c6b85;padding:14px 10px 6px;font-weight:600;}
+  .navbtn{width:100%;display:flex;align-items:center;gap:11px;padding:9px 11px;margin-bottom:2px;border:none;background:transparent;color:#c3cbdc;border-radius:8px;font-size:13.6px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;position:relative;transition:background .15s ease, color .15s ease;}
+  .navbtn svg{width:17px;height:17px;flex-shrink:0;opacity:.85;}
+  .navbtn:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .navbtn.active{background:rgba(255,90,54,0.16);color:#fff;}
+  .navbtn.active svg{opacity:1;color:#ff9d7d;}
+  .navbtn.active::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;background:var(--flame);border-radius:0 3px 3px 0;}
+  .navbtn .count{margin-left:auto;background:rgba(255,255,255,0.1);color:#dbe1ee;font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:20px;}
+  .navbtn.active .count{background:var(--flame);color:#fff;}
+  .sidebar-foot{padding:12px 20px 4px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:#6a7690;}
+
+  /* ---------- MAIN ---------- */
+  .main{margin-left:236px;flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:18px;position:sticky;top:0;z-index:20;}
+  .page-title{font-family:'Sora',sans-serif;font-weight:700;font-size:19px;color:var(--text);}
+  .page-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .search-box{flex:1;max-width:380px;margin-left:24px;display:flex;align-items:center;gap:8px;background:var(--canvas);border:1px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--muted);font-size:13px;}
+  .search-box svg{width:15px;height:15px;flex-shrink:0;}
+  .search-box input{border:none;background:transparent;outline:none;font-size:13px;width:100%;font-family:'Inter',sans-serif;}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+  .icon-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;color:var(--muted);}
+  .icon-btn:hover{background:var(--canvas);}
+  .icon-btn svg{width:17px;height:17px;}
+  .dot-badge{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--danger);border-radius:50%;border:1.5px solid #fff;}
+  .avatar{width:36px;height:36px;border-radius:9px;background:var(--ink);color:#ff9d7d;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+
+  .content{padding:26px 28px 60px;}
+  .view{display:none;animation:fade .25s ease;}
+  .view.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;}
+  @media (max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+  .kpi{display:flex;flex-direction:column;gap:6px;}
+  .kpi-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .kpi-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--flame-dim);font-size:15px;}
+  .kpi-label{font-size:12px;color:var(--muted);font-weight:500;}
+  .kpi-value{font-family:'Sora',sans-serif;font-weight:700;font-size:23px;margin-top:2px;}
+  .kpi-trend{display:flex;align-items:end;gap:2px;height:22px;margin-top:6px;}
+  .kpi-trend i{flex:1;background:var(--flame-dim);border-radius:2px;display:block;}
+  .kpi-delta{font-size:11.5px;font-weight:600;margin-top:4px;}
+  .up{color:var(--success);} .down{color:var(--danger);}
+
+  .grid-2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:1100px){.grid-2{grid-template-columns:1fr;} .grid-3{grid-template-columns:1fr;}}
+  .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .section-title h3{font-size:15px;margin:0;}
+  .link-btn{background:none;border:none;color:var(--info);font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.2px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--border);background:#FAFBFD;}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tbody tr{cursor:pointer;transition:background .12s;}
+  tbody tr:hover{background:#F8FAFD;}
+  tbody tr:last-child td{border-bottom:none;}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge.b-pending{background:#FFF4E0;color:#B4790C;}
+  .badge.b-processing{background:#E7F0FB;color:#2A6BAE;}
+  .badge.b-shipped{background:#EAE6FB;color:#6C4FCE;}
+  .badge.b-outfordelivery{background:#FDEAE0;color:#C15A25;}
+  .badge.b-delivered{background:#E4F6EA;color:#1F9D55;}
+  .badge.b-cancelled{background:#FBE7E7;color:#C43737;}
+  .badge.b-active{background:#E4F6EA;color:#1F9D55;}
+  .badge.b-lowstock{background:#FFF4E0;color:#B4790C;}
+  .badge.b-outofstock{background:#FBE7E7;color:#C43737;}
+  .badge.b-inactive{background:#EEF0F3;color:#6B7280;}
+  .badge.b-paid{background:#E4F6EA;color:#1F9D55;}
+  .badge.b-failed{background:#FBE7E7;color:#C43737;}
+  .badge.b-cartactive{background:#E7F0FB;color:#2A6BAE;}
+  .badge.b-cartidle{background:#FFF4E0;color:#B4790C;}
+  .badge.b-cartabandoned{background:#FBE7E7;color:#C43737;}
+
+  .prod-thumb{width:38px;height:38px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .cell-flex{display:flex;align-items:center;gap:10px;}
+  .cell-title{font-weight:600;color:var(--text);}
+  .cell-sub{font-size:11.5px;color:var(--muted);}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:'Inter',sans-serif;}
+  .btn svg{width:15px;height:15px;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{background:var(--ink-2);}
+  .btn-flame{background:var(--flame);color:#fff;}
+  .btn-flame:hover{filter:brightness(1.05);}
+  .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--border);}
+  .btn-ghost:hover{background:var(--canvas);}
+  .btn-danger-ghost{background:#FFF5F5;color:var(--danger);border-color:#F6D4D4;}
+  .btn-sm{padding:6px 11px;font-size:12px;}
+  .btn-block{width:100%;justify-content:center;}
+
+  .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .toolbar .filter{padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface);font-size:12.8px;color:var(--text);font-family:'Inter',sans-serif;}
+  .toolbar .search-mini{display:flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:9px;background:var(--surface);padding:8px 12px;flex:1;max-width:260px;}
+  .toolbar .search-mini svg{width:14px;height:14px;color:var(--muted);}
+  .toolbar .search-mini input{border:none;outline:none;font-size:12.8px;width:100%;font-family:'Inter',sans-serif;}
+  .toolbar .spacer{flex:1;}
+  .pager{display:flex;align-items:center;justify-content:space-between;padding-top:14px;font-size:12.5px;color:var(--muted);}
+  .pager .pages{display:flex;gap:4px;}
+  .pager button{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:12px;color:var(--text);}
+  .pager button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,0.45);display:none;align-items:center;justify-content:center;z-index:100;padding:24px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(15,23,42,0.25);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2;}
+  .modal-head h3{margin:0;font-size:16px;}
+  .modal-close{background:none;border:none;cursor:pointer;color:var(--muted);width:30px;height:30px;border-radius:8px;}
+  .modal-close:hover{background:var(--canvas);}
+  .modal-body{padding:20px 22px;}
+  .modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--surface);}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-field{display:flex;flex-direction:column;gap:6px;}
+  .form-field.full{grid-column:1/-1;}
+  .form-field label{font-size:12px;font-weight:600;color:var(--muted);}
+  .form-field input,.form-field select,.form-field textarea{border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:var(--text);background:var(--canvas);}
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--flame);background:#fff;}
+  .form-field textarea{resize:vertical;min-height:64px;}
+  .swatches{display:flex;gap:8px;}
+  .swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--ink);}
+
+  .detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13px;}
+  .detail-row:last-child{border-bottom:none;}
+  .detail-row span:first-child{color:var(--muted);}
+  .detail-row span:last-child{font-weight:600;}
+
+  .track-steps{display:flex;justify-content:space-between;position:relative;margin:22px 0 10px;}
+  .track-steps::before{content:"";position:absolute;top:11px;left:6%;right:6%;height:2px;background:var(--border);}
+  .track-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1;}
+  .track-dot{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;}
+  .track-step.done .track-dot{background:var(--success);}
+  .track-step.now .track-dot{background:var(--flame);}
+  .track-step span{font-size:10.5px;color:var(--muted);text-align:center;max-width:70px;}
+  .track-step.done span,.track-step.now span{color:var(--text);font-weight:600;}
+
+  .cat-tree{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .cat-parent{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:#FAFBFD;border-bottom:1px solid var(--border);cursor:pointer;}
+  .cat-parent-left{display:flex;align-items:center;gap:10px;}
+  .cat-parent-left svg{width:15px;height:15px;color:var(--muted);transition:transform .15s;}
+  .cat-parent.open .cat-parent-left svg{transform:rotate(90deg);}
+  .cat-sub{padding:11px 16px 11px 42px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);font-size:13.2px;}
+  .cat-children{display:none;}
+  .cat-children.open{display:block;}
+  .cat-count{font-size:11.5px;color:var(--muted);background:var(--canvas);padding:2px 9px;border-radius:20px;}
+  .row-actions{display:flex;gap:6px;}
+  .icon-mini{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);}
+  .icon-mini:hover{background:var(--canvas);color:var(--text);}
+  .icon-mini svg{width:13.5px;height:13.5px;}
+
+  .banner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:1100px){.banner-grid{grid-template-columns:1fr 1fr;}}
+  .banner-card{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface);}
+  .banner-art{height:110px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;text-align:center;padding:10px;}
+  .banner-info{padding:13px 15px;}
+  .banner-foot{display:flex;justify-content:space-between;align-items:center;padding:0 15px 13px;}
+
+  .settings-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+  .stab{padding:10px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .stab.active{color:var(--text);border-color:var(--flame);}
+  .settings-pane{display:none;}
+  .settings-pane.active{display:block;}
+
+  /* ---------- BILLING PAGE ---------- */
+  .current-plan-card{background:linear-gradient(135deg,var(--ink),var(--ink-2));border-radius:16px;padding:26px 28px;color:#fff;display:flex;align-items:center;gap:24px;margin-bottom:24px;flex-wrap:wrap;}
+  .current-plan-card .cp-left{flex:1;min-width:220px;}
+  .current-plan-card .cp-plan{font-family:'Sora',sans-serif;font-weight:800;font-size:24px;margin-bottom:4px;}
+  .current-plan-card .cp-meta{font-size:12.8px;color:#B9C2D6;}
+  .current-plan-card .cp-usage{display:flex;gap:28px;flex-wrap:wrap;}
+  .cp-usage-item{min-width:120px;}
+  .cp-usage-item .num{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;}
+  .cp-usage-item .lbl{font-size:11px;color:#B9C2D6;}
+  .cp-bar{width:100%;height:6px;background:rgba(255,255,255,0.15);border-radius:20px;margin-top:6px;overflow:hidden;}
+  .cp-bar i{display:block;height:100%;background:var(--flame);border-radius:20px;}
+
+  .billing-toggle-mini{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 26px;}
+  .bt-switch{position:relative;width:48px;height:26px;background:var(--border);border-radius:20px;cursor:pointer;}
+  .bt-switch .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);transition:.2s;}
+  .bt-switch.yearly{background:var(--flame);}
+  .bt-switch.yearly .knob{transform:translateX(22px);}
+  .save-chip{background:var(--flame-dim);color:var(--flame);font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;}
+
+  .plan-pick-card{border:1px solid var(--border);border-radius:16px;padding:22px;background:var(--surface);position:relative;display:flex;flex-direction:column;}
+  .plan-pick-card.current{border-color:var(--success);box-shadow:0 0 0 3px #E4F6EA;}
+  .plan-pick-card.featured{border-color:var(--flame);box-shadow:0 0 0 3px var(--flame-dim);}
+  .plan-pick-badge{position:absolute;top:-11px;left:20px;font-size:10.5px;font-weight:700;padding:3px 11px;border-radius:20px;}
+  .plan-pick-badge.current{background:var(--success);color:#fff;}
+  .plan-pick-badge.featured{background:var(--flame);color:#fff;}
+  .pp-name{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin-bottom:4px;}
+  .pp-price{font-family:'Sora',sans-serif;font-weight:800;font-size:28px;margin:6px 0;}
+  .pp-price span{font-size:12px;font-weight:500;color:var(--muted);}
+  .pp-feat{list-style:none;padding:0;margin:16px 0;display:flex;flex-direction:column;gap:9px;font-size:12.8px;flex:1;}
+  .pp-feat li{display:flex;gap:8px;align-items:flex-start;}
+  .pp-feat svg{width:14px;height:14px;color:var(--success);flex-shrink:0;margin-top:2px;}
+
+  .invoice-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .invoice-row:last-child{border-bottom:none;}
+
+  .report-bars{display:flex;align-items:end;gap:10px;height:160px;padding-top:10px;}
+  .report-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .report-bar{width:100%;background:var(--flame);border-radius:6px 6px 0 0;}
+  .report-bar-label{font-size:10.5px;color:var(--muted);}
+
+  .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.2);animation:slidein .2s ease;}
+  .toast svg{width:15px;height:15px;color:var(--flame);flex-shrink:0;}
+  @keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-thumb{background:#d3dbe6;border-radius:20px;}
+  .navlist::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);}
+</style>
+</head>
+<body>
+
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">A</div>
+    <div>
+      <div class="brand-name">Aura Living</div>
+      <div class="brand-sub">auraliving.storeforge.io</div>
+      <div class="plan-tag">Growth Plan</div>
+    </div>
+  </div>
+  <nav class="navlist" id="navlist">
+    <div class="navlabel">Overview</div>
+    <button class="navbtn active" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <div class="navlabel">Catalog</div>
+    <button class="navbtn" data-view="products">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7 12 3 4 7v10l8 4 8-4V7Z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg>
+      Products <span class="count">146</span>
+    </button>
+    <button class="navbtn" data-view="categories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
+      Categories
+    </button>
+    <button class="navbtn" data-view="banners">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 4-4 5 5"/></svg>
+      Banners
+    </button>
+    <div class="navlabel">Sales</div>
+    <button class="navbtn" data-view="orders">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l3 3v17H6z"/><path d="M9 2v5h6"/></svg>
+      Orders <span class="count">14</span>
+    </button>
+    <button class="navbtn" data-view="carts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M2 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6"/></svg>
+      Abandoned Carts <span class="count" id="cartsNavCount">5</span>
+    </button>
+    <button class="navbtn" data-view="customers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c1-4 3.5-6 6.5-6s5.5 2 6.5 6"/><circle cx="18" cy="9" r="2.4"/><path d="M15.7 14.2c2.4.3 4 2 4.8 5.8"/></svg>
+      Customers
+    </button>
+    <button class="navbtn" data-view="reports">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M11 19V5M18 19v-7"/></svg>
+      Reports
+    </button>
+    <div class="navlabel">Account</div>
+    <button class="navbtn" data-view="billing">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      Billing & Subscription
+    </button>
+    <button class="navbtn" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L14.8 3h-3.9l-.5 2.6a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L6.3 11a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7.7 7.7 0 0 0 1.7 1l.5 2.6h3.9l.5-2.6a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5Z"/></svg>
+      Store Settings
+    </button>
+  </nav>
+  <div class="sidebar-foot">Store Admin Dashboard · v1.0 mockup</div>
+</aside>
+
+<!-- ===================== MAIN ===================== -->
+<div class="main">
+  <header class="topbar">
+    <div>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="page-sub" id="pageSub">Welcome back — here's how Aura Living is doing today</div>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+      <input placeholder="Search orders, products, customers…" id="globalSearch">
+    </div>
+    <div class="top-right">
+      <div class="icon-btn" onclick="showToast('No new notifications right now')">
+        <span class="dot-badge"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 20a1.7 1.7 0 0 0 3 0"/></svg>
+      </div>
+      <div class="icon-btn" onclick="setView('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.4 1a7.7 7.7 0 0 0-1.7-1L14.8 3h-3.9l-.5 2.6a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.4L6.3 11a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7.7 7.7 0 0 0 1.7 1l.5 2.6h3.9l.5-2.6a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5Z"/></svg>
+      </div>
+      <div class="avatar" onclick="showToast('Signed in as Nikhil Rao · Store Owner')">NR</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="view active" id="view-dashboard">
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title"><h3>Recent Orders</h3><button class="link-btn" onclick="setView('orders')">View all orders →</button></div>
+          <table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody id="dashRecentOrders"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="section-title"><h3>Your Plan</h3><button class="link-btn" onclick="setView('billing')">Manage billing →</button></div>
+          <div id="dashPlanCard"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <div class="section-title"><h3>Carts Pending Checkout</h3><button class="link-btn" onclick="setView('carts')">View all abandoned carts →</button></div>
+        <p class="cell-sub" style="margin-top:-8px;margin-bottom:14px;">Some customers take days — even weeks — to come back and check out. Here's what's currently sitting in cart.</p>
+        <div id="dashCarts"></div>
+      </div>
+    </section>
+
+    <!-- ============ PRODUCTS ============ -->
+    <section class="view" id="view-products">
+      <div class="toolbar">
+        <div class="search-mini">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+          <input id="productSearch" placeholder="Search products…" oninput="renderProducts()">
+        </div>
+        <select class="filter" id="productCategoryFilter" onchange="renderProducts()"><option value="">All categories</option></select>
+        <select class="filter" id="productStatusFilter" onchange="renderProducts()">
+          <option value="">All statuses</option><option>Active</option><option>Low Stock</option><option>Out of Stock</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="btn btn-flame" onclick="openProductModal(null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Product
+        </button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>SKU</th></tr></thead>
+        <tbody id="productsBody"></tbody></table>
+      </div>
+      <div class="pager" id="productsPager"></div>
+    </section>
+
+    <!-- ============ CATEGORIES ============ -->
+    <section class="view" id="view-categories">
+      <div class="toolbar">
+        <div class="spacer"></div>
+        <button class="btn btn-ghost" onclick="openCategoryModal('sub')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Sub-category
+        </button>
+        <button class="btn btn-flame" onclick="openCategoryModal('parent')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Category
+        </button>
+      </div>
+      <div class="cat-tree" id="catTree"></div>
+    </section>
+
+    <!-- ============ BANNERS ============ -->
+    <section class="view" id="view-banners">
+      <div class="toolbar">
+        <div class="spacer"></div>
+        <button class="btn btn-flame" onclick="openBannerModal(null)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Banner
+        </button>
+      </div>
+      <div class="banner-grid" id="bannerGrid"></div>
+    </section>
+
+    <!-- ============ ORDERS ============ -->
+    <section class="view" id="view-orders">
+      <div class="toolbar">
+        <div class="search-mini">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+          <input id="orderSearch" placeholder="Search order ID or customer…" oninput="renderOrders()">
+        </div>
+        <select class="filter" id="orderStatusFilter" onchange="renderOrders()">
+          <option value="">All statuses</option><option>Pending</option><option>Processing</option><option>Shipped</option><option>Out for Delivery</option><option>Delivered</option><option>Cancelled</option>
+        </select>
+        <div class="spacer"></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table><thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
+        <tbody id="ordersBody"></tbody></table>
+      </div>
+      <div class="pager" id="ordersPager"></div>
+    </section>
+
+    <!-- ============ ABANDONED CARTS ============ -->
+    <section class="view" id="view-carts">
+      <div class="card" style="background:#FFF8F0;border-color:#F5DFB8;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="font-size:20px;">💡</div>
+        <div>
+          <div class="cell-title" style="font-size:13.5px;">Why this matters</div>
+          <div class="cell-sub" style="line-height:1.6;">Customers often add products to their cart days — sometimes weeks — before they come back to buy. Tracking what's sitting in cart lets you follow up before they forget, instead of being surprised by a sudden order.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-mini">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+          <input id="cartSearch" placeholder="Search customer…" oninput="renderCarts()">
+        </div>
+        <select class="filter" id="cartStatusFilter" onchange="renderCarts()">
+          <option value="">All carts</option><option>Active</option><option>Idle</option><option>Abandoned</option>
+        </select>
+        <div class="spacer"></div>
+        <span class="cell-sub" id="cartsTotalValue"></span>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table><thead><tr><th>Customer</th><th>Items in Cart</th><th>Cart Value</th><th>Last Activity</th><th>Status</th><th></th></tr></thead>
+        <tbody id="cartsBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMERS ============ -->
+    <section class="view" id="view-customers">
+      <div class="toolbar">
+        <div class="search-mini">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+          <input id="customerSearch" placeholder="Search customers…" oninput="renderCustomers()">
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table><thead><tr><th>Customer</th><th>Contact</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Joined</th></tr></thead>
+        <tbody id="customersBody"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ============ REPORTS ============ -->
+    <section class="view" id="view-reports">
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title"><h3>Sales — Last 7 Days</h3></div>
+          <div class="report-bars" id="reportSalesBars"></div>
+        </div>
+        <div class="card">
+          <div class="section-title"><h3>Orders by Status</h3></div>
+          <div id="reportOrderStatus"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <div class="section-title"><h3>Top Products by Revenue</h3></div>
+        <table><thead><tr><th>Product</th><th>Units Sold</th><th>Revenue</th></tr></thead>
+        <tbody id="reportTopProducts"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ============ BILLING & SUBSCRIPTION ============ -->
+    <section class="view" id="view-billing">
+      <div class="current-plan-card">
+        <div class="cp-left">
+          <div class="cp-meta">CURRENT PLAN</div>
+          <div class="cp-plan" id="cp-plan-name">Growth — $49/month</div>
+          <div class="cp-meta" id="cp-renew">Renews on August 9, 2026 · Visa ending 4242</div>
+        </div>
+        <div class="cp-usage">
+          <div class="cp-usage-item"><div class="num">146 / 2,000</div><div class="lbl">Products used</div><div class="cp-bar"><i style="width:7.3%;"></i></div></div>
+          <div class="cp-usage-item"><div class="num">3 / 5</div><div class="lbl">Admin users</div><div class="cp-bar"><i style="width:60%;"></i></div></div>
+          <div class="cp-usage-item"><div class="num">1 / 1</div><div class="lbl">Custom domains</div><div class="cp-bar"><i style="width:100%;"></i></div></div>
+        </div>
+        <button class="btn btn-ghost" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);" onclick="openCancelModal()">Cancel Subscription</button>
+      </div>
+
+      <div class="section-title"><h3>Change or Purchase a Plan</h3></div>
+      <div class="billing-toggle-mini">
+        <span style="font-size:13px;font-weight:600;color:var(--muted);" id="billMonthlyLabel">Monthly</span>
+        <div class="bt-switch" id="billSwitch" onclick="toggleBillingCycle()"><div class="knob"></div></div>
+        <span style="font-size:13px;font-weight:600;" id="billYearlyLabel">Yearly</span>
+        <span class="save-chip">Save 20%</span>
+      </div>
+      <div class="grid-3" id="planPickGrid" style="margin-bottom:28px;"></div>
+
+      <div class="card">
+        <div class="section-title"><h3>Billing History</h3></div>
+        <div id="invoiceList"></div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" id="view-settings">
+      <div class="card">
+        <div class="settings-tabs">
+          <div class="stab active" data-tab="general">General</div>
+          <div class="stab" data-tab="contact">Contact Info</div>
+          <div class="stab" data-tab="footer">Footer</div>
+          <div class="stab" data-tab="social">Social Links</div>
+        </div>
+        <div class="settings-pane active" id="tab-general">
+          <div class="form-grid">
+            <div class="form-field"><label>Store Name</label><input value="Aura Living"></div>
+            <div class="form-field"><label>Store Domain</label><input value="auraliving.storeforge.io"></div>
+            <div class="form-field full"><label>Logo</label>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="brand-mark" style="background:var(--ink);color:#ff9d7d;">A</div>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Logo upload is a mockup control')">Upload new logo</button>
+              </div>
+            </div>
+            <div class="form-field full"><label>Theme Color</label>
+              <div class="swatches">
+                <div class="swatch sel" style="background:#FF5A36"></div>
+                <div class="swatch" style="background:#2F80ED"></div>
+                <div class="swatch" style="background:#1F9D55"></div>
+                <div class="swatch" style="background:#D64545"></div>
+                <div class="swatch" style="background:#6C4FCE"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-pane" id="tab-contact">
+          <div class="form-grid">
+            <div class="form-field"><label>Support Email</label><input value="support@auraliving.com"></div>
+            <div class="form-field"><label>Support Phone</label><input value="+1 (555) 220-4471"></div>
+            <div class="form-field full"><label>Store Address</label><textarea>221 Birchwood Lane, Austin, TX 78701</textarea></div>
+          </div>
+        </div>
+        <div class="settings-pane" id="tab-footer">
+          <div class="form-grid">
+            <div class="form-field full"><label>Footer Text</label><textarea>© 2026 Aura Living. All rights reserved.</textarea></div>
+            <div class="form-field"><label>Return Policy Link</label><input value="/pages/returns"></div>
+            <div class="form-field"><label>Shipping Policy Link</label><input value="/pages/shipping"></div>
+          </div>
+        </div>
+        <div class="settings-pane" id="tab-social">
+          <div class="form-grid">
+            <div class="form-field"><label>Instagram</label><input value="instagram.com/auraliving"></div>
+            <div class="form-field"><label>Facebook</label><input value="facebook.com/auraliving"></div>
+            <div class="form-field"><label>Pinterest</label><input value="pinterest.com/auraliving"></div>
+          </div>
+        </div>
+        <div style="margin-top:18px;"><button class="btn btn-primary" onclick="showToast('Settings saved successfully')">Save Changes</button></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   DUMMY DATA
+============================================================ */
+const CATEGORIES = [
+  { id:'clothing', name:'Home Textiles', subs:[
+    { id:'bedding', name:'Bedding & Linen', count:18 },
+    { id:'rugs', name:'Rugs & Throws', count:14 },
+  ]},
+  { id:'decor', name:'Decor', subs:[
+    { id:'lighting', name:'Lighting', count:11 },
+    { id:'wallart', name:'Wall Art', count:9 },
+    { id:'vases', name:'Vases & Planters', count:16 },
+  ]},
+  { id:'furniture', name:'Furniture', subs:[
+    { id:'seating', name:'Seating', count:7 },
+    { id:'tables', name:'Tables', count:5 },
+  ]},
+];
+
+let PRODUCTS = [
+  { id:1, name:"Linen Weave Duvet Set", sub:'bedding', price:129, discount:10, stock:52, sku:'AL-BED-101', emoji:'🛏️', color:'#2F80ED' },
+  { id:2, name:"Organic Cotton Pillowcases (Pair)", sub:'bedding', price:39, discount:0, stock:88, sku:'AL-BED-114', emoji:'🛏️', color:'#6C4FCE' },
+  { id:3, name:"Handwoven Jute Area Rug", sub:'rugs', price:189, discount:15, stock:21, sku:'AL-RUG-208', emoji:'🧶', color:'#B4790C' },
+  { id:4, name:"Chunky Knit Throw Blanket", sub:'rugs', price:69, discount:0, stock:9, sku:'AL-RUG-219', emoji:'🧣', color:'#D64545' },
+  { id:5, name:"Rattan Pendant Light Shade", sub:'lighting', price:99, discount:0, stock:34, sku:'AL-LGT-303', emoji:'💡', color:'#FF5A36' },
+  { id:6, name:"Ceramic Table Lamp", sub:'lighting', price:79, discount:12, stock:5, sku:'AL-LGT-311', emoji:'🪔', color:'#1F9D55' },
+  { id:7, name:"Abstract Line Art Print Set", sub:'wallart', price:59, discount:0, stock:62, sku:'AL-ART-402', emoji:'🖼️', color:'#2F80ED' },
+  { id:8, name:"Terracotta Wall Planter Trio", sub:'vases', price:45, discount:8, stock:0, sku:'AL-VAS-517', emoji:'🪴', color:'#B4790C' },
+  { id:9, name:"Fluted Ceramic Vase, Large", sub:'vases', price:65, discount:0, stock:27, sku:'AL-VAS-522', emoji:'🏺', color:'#6C4FCE' },
+  { id:10, name:"Boucle Accent Armchair", sub:'seating', price:449, discount:5, stock:6, sku:'AL-FUR-601', emoji:'🛋️', color:'#101828' },
+  { id:11, name:"Oak Round Side Table", sub:'tables', price:219, discount:0, stock:14, sku:'AL-FUR-612', emoji:'🪑', color:'#B4790C' },
+  { id:12, name:"Woven Rattan Bench", sub:'seating', price:279, discount:10, stock:3, sku:'AL-FUR-618', emoji:'🪑', color:'#FF5A36' },
+];
+
+function subLabel(subId){ for(const c of CATEGORIES) for(const s of c.subs) if(s.id===subId) return c.name+' / '+s.name; return subId; }
+function stockStatus(stock){ if(stock===0) return 'Out of Stock'; if(stock<10) return 'Low Stock'; return 'Active'; }
+function stockBadgeClass(status){ return status==='Active'?'b-active':status==='Low Stock'?'b-lowstock':'b-outofstock'; }
+
+let ORDERS = [
+  { id:'AL-3081', customer:'Grace Kim', date:'06 Jul 2026', items:2, total:168, status:'Delivered', tracking:'USPS3384211', addr:'12 Willow St, Austin, TX 78701', phone:'+1 512 555 0142' },
+  { id:'AL-3082', customer:'Marcus Cole', date:'07 Jul 2026', items:1, total:189, status:'Out for Delivery', tracking:'USPS3384255', addr:'44 Elmwood Ave, Denver, CO 80202', phone:'+1 720 555 0177' },
+  { id:'AL-3083', customer:'Priya Chandran', date:'07 Jul 2026', items:3, total:243, status:'Shipped', tracking:'USPS3384299', addr:'7B Lakeview Dr, Seattle, WA 98101', phone:'+1 206 555 0118' },
+  { id:'AL-3084', customer:'Daniel Osei', date:'08 Jul 2026', items:1, total:449, status:'Processing', tracking:'', addr:'21 Cedar Ln, Portland, OR 97201', phone:'+1 503 555 0164' },
+  { id:'AL-3085', customer:'Sofia Martinez', date:'08 Jul 2026', items:2, total:104, status:'Pending', tracking:'', addr:'5 Ridge Rd, Austin, TX 78704', phone:'+1 512 555 0199' },
+  { id:'AL-3086', customer:'Liam O\'Connor', date:'09 Jul 2026', items:1, total:79, status:'Pending', tracking:'', addr:'18 Bayview St, San Diego, CA 92101', phone:'+1 619 555 0133' },
+  { id:'AL-3087', customer:'Emma Fischer', date:'09 Jul 2026', items:1, total:65, status:'Cancelled', tracking:'', addr:'9 Rose Ct, Nashville, TN 37201', phone:'+1 615 555 0121' },
+  { id:'AL-3088', customer:'Ravi Desai', date:'09 Jul 2026', items:2, total:298, status:'Processing', tracking:'', addr:'33 Highland Ave, Chicago, IL 60614', phone:'+1 312 555 0155' },
+];
+const STATUS_FLOW = ['Pending','Processing','Shipped','Out for Delivery','Delivered'];
+
+let CUSTOMERS = [
+  { id:1, name:'Grace Kim', email:'grace.kim@gmail.com', phone:'+1 512 555 0142', city:'Austin', orders:6, spent:842, joined:'12 Jan 2025' },
+  { id:2, name:'Marcus Cole', email:'marcus.cole@gmail.com', phone:'+1 720 555 0177', city:'Denver', orders:3, spent:512, joined:'03 Mar 2025' },
+  { id:3, name:'Priya Chandran', email:'priya.c@outlook.com', phone:'+1 206 555 0118', city:'Seattle', orders:4, spent:698, joined:'21 May 2025' },
+  { id:4, name:'Daniel Osei', email:'daniel.osei@gmail.com', phone:'+1 503 555 0164', city:'Portland', orders:2, spent:449, joined:'02 Sep 2025' },
+  { id:5, name:'Sofia Martinez', email:'sofia.m@yahoo.com', phone:'+1 512 555 0199', city:'Austin', orders:1, spent:104, joined:'19 Nov 2025' },
+  { id:6, name:'Ravi Desai', email:'ravi.desai@gmail.com', phone:'+1 312 555 0155', city:'Chicago', orders:5, spent:721, joined:'27 Jan 2025' },
+];
+
+let CARTS = [
+  { id:1, customer:'Emily Zhang', email:'emily.zhang@gmail.com', phone:'+1 415 555 0188', items:[{pid:1,qty:1},{pid:5,qty:2}], hoursIdle:5 },
+  { id:2, customer:'Noah Bennett', email:'noah.bennett@gmail.com', phone:'+1 646 555 0102', items:[{pid:10,qty:1}], hoursIdle:312 },
+  { id:3, customer:'Aaliyah Brooks', email:'aaliyah.b@outlook.com', phone:'+1 773 555 0141', items:[{pid:3,qty:1},{pid:9,qty:1},{pid:11,qty:1}], hoursIdle:14 },
+  { id:4, customer:'Chris Palmer', email:'chris.palmer@gmail.com', phone:'+1 214 555 0176', items:[{pid:6,qty:1}], hoursIdle:487 },
+  { id:5, customer:'Isabella Turner', email:'isabella.t@yahoo.com', phone:'+1 617 555 0193', items:[{pid:2,qty:3},{pid:7,qty:1}], hoursIdle:22 },
+];
+function cartAgeLabel(hours){
+  if(hours<24) return Math.round(hours)+' hour'+(Math.round(hours)===1?'':'s')+' ago';
+  const days = Math.round(hours/24);
+  return days+' day'+(days===1?'':'s')+' ago';
+}
+function cartStatus(hours){ if(hours<24) return 'Active'; if(hours<168) return 'Idle'; return 'Abandoned'; }
+function cartValue(cart){ return cart.items.reduce((sum,it)=>{ const p = PRODUCTS.find(x=>x.id===it.pid); if(!p) return sum; return sum + Math.round(p.price*(1-p.discount/100))*it.qty; },0); }
+
+let BANNERS = [
+  { id:1, kind:'Homepage Banner', title:'Summer Refresh', sub:'Up to 20% off Bedding & Linen', color1:'#101828', color2:'#2F80ED', status:'Active' },
+  { id:2, kind:'Category Banner', title:'New in Decor', sub:'Lighting & wall art just landed', color1:'#3B2F6C', color2:'#6C4FCE', status:'Active' },
+  { id:3, kind:'Offer Banner', title:'Free Shipping', sub:'On orders over $99 this week', color1:'#B4790C', color2:'#FF5A36', status:'Active' },
+];
+
+const PLANS = [
+  { name:'Starter', monthly:19, yearly:190, feats:['200 products','1 admin user','Subdomain store URL','Email support'] },
+  { name:'Growth', monthly:49, yearly:490, feats:['2,000 products','5 admin users','1 custom domain','Priority support + chat'] },
+  { name:'Enterprise', monthly:129, yearly:1290, feats:['Unlimited products','Unlimited admin users','Unlimited custom domains','Dedicated account manager'] },
+];
+let currentPlan = 'Growth';
+let billingYearly = false;
+
+let INVOICES = [
+  { id:'INV-0231', date:'09 Jun 2026', plan:'Growth', amount:49, status:'Paid' },
+  { id:'INV-0198', date:'09 May 2026', plan:'Growth', amount:49, status:'Paid' },
+  { id:'INV-0165', date:'09 Apr 2026', plan:'Starter', amount:19, status:'Paid' },
+  { id:'INV-0142', date:'09 Mar 2026', plan:'Starter', amount:19, status:'Paid' },
+];
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const pageMeta = {
+  dashboard:{title:'Dashboard', sub:"Welcome back — here's how Aura Living is doing today"},
+  products:{title:'Products', sub:'Manage your product catalog, pricing and stock'},
+  categories:{title:'Categories', sub:'Organize categories and sub-categories'},
+  banners:{title:'Banners', sub:'Manage homepage, category and offer banners'},
+  orders:{title:'Orders', sub:'Track and fulfil customer orders'},
+  carts:{title:'Abandoned Carts', sub:'See what customers added to cart before leaving — some take weeks to come back'},
+  customers:{title:'Customers', sub:'View customers and their order history'},
+  reports:{title:'Reports', sub:'Sales and order performance for your store'},
+  billing:{title:'Billing & Subscription', sub:'Manage your StoreForge plan and payment history'},
+  settings:{title:'Store Settings', sub:'Branding, contact info, footer and social links'},
+};
+function setView(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  document.getElementById('pageTitle').textContent = pageMeta[view].title;
+  document.getElementById('pageSub').textContent = pageMeta[view].sub;
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('.navbtn[data-view]').forEach(btn=>{ btn.addEventListener('click', ()=>setView(btn.dataset.view)); });
+
+/* ============================================================
+   TOAST + MODAL HELPERS
+============================================================ */
+function showToast(msg){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className='toast';
+  t.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>'+msg+'</span>';
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2600);
+}
+function openModal(html){ document.getElementById('modalBox').innerHTML = html; document.getElementById('overlay').classList.add('show'); }
+function closeModal(){ document.getElementById('overlay').classList.remove('show'); }
+document.getElementById('overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+function badgeClassOrder(status){ return 'b-'+status.toLowerCase().replace(/ /g,''); }
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+function renderDashboard(){
+  const kpis = [
+    { label:'Total Orders', value:'312', delta:'+6.4% vs last week', up:true, icon:'📦', bars:[6,9,7,10,8,11,9] },
+    { label:'Total Sales', value:'$28,940', delta:'+3.1% vs last week', up:true, icon:'💰', bars:[5,6,7,6,8,9,10] },
+    { label:'Total Products', value:'146', delta:'+4 new this week', up:true, icon:'🏷️', bars:[7,7,7,8,8,8,9] },
+    { label:'Total Customers', value:'218', delta:'+9 this week', up:true, icon:'🧑\u200d🤝\u200d🧑', bars:[4,5,5,6,7,7,8] },
+    { label:'Pending Orders', value:'6', delta:'Needs attention', up:false, icon:'⏳', bars:[3,5,4,6,5,7,9] },
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+    <div class="card kpi">
+      <div class="kpi-top"><div><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div></div><div class="kpi-icon">${k.icon}</div></div>
+      <div class="kpi-trend">${k.bars.map(b=>`<i style="height:${b*10}%;"></i>`).join('')}</div>
+      <div class="kpi-delta ${k.up?'up':'down'}">${k.delta}</div>
+    </div>`).join('');
+
+  document.getElementById('dashRecentOrders').innerHTML = ORDERS.slice(0,5).map(o=>`
+    <tr onclick="openOrderModal('${o.id}')">
+      <td><b>${o.id}</b></td><td>${o.customer}</td><td>$${o.total.toLocaleString('en-US')}</td>
+      <td><span class="badge ${badgeClassOrder(o.status)}">${o.status}</span></td>
+    </tr>`).join('');
+
+  const plan = PLANS.find(p=>p.name===currentPlan);
+  document.getElementById('dashPlanCard').innerHTML = `
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">You're on the</div>
+    <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:22px;margin-bottom:6px;">${currentPlan} Plan</div>
+    <div class="cell-sub" style="margin-bottom:16px;">$${plan.monthly}/month · renews Aug 9, 2026</div>
+    <div style="font-size:12.8px;color:var(--muted);margin-bottom:14px;">146 of 2,000 products used</div>
+    <div class="cp-bar" style="background:var(--canvas);"><i style="width:7.3%;"></i></div>
+    <button class="btn btn-flame btn-block" style="margin-top:16px;" onclick="setView('billing')">Manage Plan</button>
+  `;
+
+  const sortedCarts = [...CARTS].sort((a,b)=>b.hoursIdle-a.hoursIdle).slice(0,4);
+  document.getElementById('dashCarts').innerHTML = sortedCarts.map(c=>{
+    const status = cartStatus(c.hoursIdle);
+    const itemCount = c.items.reduce((s,it)=>s+it.qty,0);
+    return `<div class="cell-flex" style="padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="setView('carts');setTimeout(()=>openCartModal(${c.id}),50)">
+      <div class="avatar" style="width:32px;height:32px;font-size:11px;">${c.customer.split(' ').map(n=>n[0]).join('')}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="cell-title" style="font-size:13px;">${c.customer}</div>
+        <div class="cell-sub">${itemCount} item${itemCount===1?'':'s'} · ${cartAgeLabel(c.hoursIdle)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-weight:700;font-size:13px;">$${cartValue(c)}</div>
+        <span class="badge b-cart${status.toLowerCase()}" style="margin-top:2px;">${status}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   PRODUCTS
+============================================================ */
+function populateCategoryFilter(){
+  const sel = document.getElementById('productCategoryFilter');
+  let html = '<option value="">All categories</option>';
+  CATEGORIES.forEach(c=>{ c.subs.forEach(s=>{ html += `<option value="${s.id}">${c.name} / ${s.name}</option>`; }); });
+  sel.innerHTML = html;
+}
+function renderProducts(){
+  const q = (document.getElementById('productSearch').value||'').toLowerCase();
+  const catF = document.getElementById('productCategoryFilter').value;
+  const statF = document.getElementById('productStatusFilter').value;
+  let rows = PRODUCTS.filter(p=>{
+    const status = stockStatus(p.stock);
+    if(q && !p.name.toLowerCase().includes(q) && !p.sku.toLowerCase().includes(q)) return false;
+    if(catF && p.sub!==catF) return false;
+    if(statF && status!==statF) return false;
+    return true;
+  });
+  document.getElementById('productsBody').innerHTML = rows.map(p=>{
+    const status = stockStatus(p.stock);
+    const finalPrice = Math.round(p.price*(1-p.discount/100));
+    return `<tr onclick="openProductModal(${p.id})">
+      <td><div class="cell-flex"><div class="prod-thumb" style="background:${p.color}22;">${p.emoji}</div>
+        <div><div class="cell-title">${p.name}</div><div class="cell-sub">${p.discount>0? 'Discount '+p.discount+'%':'No discount'}</div></div></div></td>
+      <td>${subLabel(p.sub)}</td>
+      <td><b>$${finalPrice}</b>${p.discount>0?` <span class="cell-sub" style="text-decoration:line-through;">$${p.price}</span>`:''}</td>
+      <td>${p.stock}</td>
+      <td><span class="badge ${stockBadgeClass(status)}">${status}</span></td>
+      <td class="cell-sub">${p.sku}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px;">No products match your filters.</td></tr>`;
+  document.getElementById('productsPager').innerHTML = `<span>${rows.length} of ${PRODUCTS.length} products</span>
+    <div class="pages"><button class="on">1</button><button>2</button><button>›</button></div>`;
+}
+function openProductModal(id){
+  const p = id ? PRODUCTS.find(x=>x.id===id) : null;
+  openModal(`
+    <div class="modal-head"><h3>${p?'Edit Product':'Add Product'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label>Product Name</label><input id="f-name" value="${p?p.name:''}"></div>
+        <div class="form-field"><label>Category / Sub-category</label>
+          <select id="f-sub">${CATEGORIES.map(c=>c.subs.map(s=>`<option value="${s.id}" ${p&&p.sub===s.id?'selected':''}>${c.name} / ${s.name}</option>`).join('')).join('')}</select>
+        </div>
+        <div class="form-field"><label>SKU</label><input id="f-sku" value="${p?p.sku:'AL-NEW-'+Math.floor(100+Math.random()*900)}"></div>
+        <div class="form-field"><label>Price ($)</label><input id="f-price" type="number" value="${p?p.price:''}"></div>
+        <div class="form-field"><label>Discount (%)</label><input id="f-discount" type="number" value="${p?p.discount:0}"></div>
+        <div class="form-field"><label>Stock Quantity</label><input id="f-stock" type="number" value="${p?p.stock:''}"></div>
+        <div class="form-field"><label>Status</label><select><option>Active</option><option>Inactive</option></select></div>
+        <div class="form-field full"><label>Short Description</label><input value="${p? 'Thoughtfully designed for everyday living.':''}"></div>
+        <div class="form-field full"><label>Full Description</label><textarea>${p? 'Crafted from quality materials with an eye for detail — built to be lived with, every day.':''}</textarea></div>
+        <div class="form-field full"><label>Product Images</label>
+          <div style="display:flex;gap:8px;">
+            ${[1,2,3,4].map(()=>`<div class="prod-thumb" style="width:56px;height:56px;background:#F0F2F6;border:1px dashed var(--border);font-size:20px;">${p?p.emoji:'📷'}</div>`).join('')}
+            <div class="prod-thumb" style="width:56px;height:56px;background:var(--canvas);border:1px dashed var(--border);cursor:pointer;font-size:20px;" onclick="showToast('Image upload is a mockup control')">+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${p?`<button class="btn btn-danger-ghost" onclick="deleteProduct(${p.id})">Delete</button>`:''}
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct(${p?p.id:'null'})">Save Product</button>
+    </div>
+  `);
+  if(p){ setTimeout(()=>{ document.getElementById('f-sub').value = p.sub; },0); }
+}
+function saveProduct(id){
+  const name = document.getElementById('f-name').value || 'Untitled Product';
+  const sub = document.getElementById('f-sub').value;
+  const sku = document.getElementById('f-sku').value;
+  const price = Number(document.getElementById('f-price').value)||0;
+  const discount = Number(document.getElementById('f-discount').value)||0;
+  const stock = Number(document.getElementById('f-stock').value)||0;
+  if(id){ Object.assign(PRODUCTS.find(x=>x.id===id),{name,sub,sku,price,discount,stock}); showToast('Product updated successfully'); }
+  else { PRODUCTS.push({ id:Date.now(), name, sub, sku, price, discount, stock, emoji:'🆕', color:'#FF5A36' }); showToast('Product added successfully'); }
+  closeModal(); renderProducts(); renderDashboard();
+}
+function deleteProduct(id){ PRODUCTS = PRODUCTS.filter(p=>p.id!==id); closeModal(); renderProducts(); showToast('Product deleted'); }
+
+/* ============================================================
+   CATEGORIES
+============================================================ */
+function renderCategories(){
+  document.getElementById('catTree').innerHTML = CATEGORIES.map((c,i)=>`
+    <div>
+      <div class="cat-parent" onclick="toggleCat(${i})" id="cat-parent-${i}">
+        <div class="cat-parent-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg>
+          <span class="cell-title">${c.name}</span><span class="cat-count">${c.subs.reduce((a,s)=>a+s.count,0)} products</span>
+        </div>
+        <div class="row-actions" onclick="event.stopPropagation()">
+          <div class="icon-mini" onclick="openCategoryModal('parent', '${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+          <div class="icon-mini" onclick="showToast('Category deleted (mockup)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></div>
+        </div>
+      </div>
+      <div class="cat-children" id="cat-children-${i}">
+        ${c.subs.map(s=>`
+          <div class="cat-sub">
+            <span>${s.name}</span>
+            <div class="cell-flex" onclick="event.stopPropagation()">
+              <span class="cat-count">${s.count} products</span>
+              <div class="row-actions">
+                <div class="icon-mini" onclick="openCategoryModal('sub','${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+                <div class="icon-mini" onclick="showToast('Sub-category deleted (mockup)')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg></div>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  toggleCat(0, true);
+}
+function toggleCat(i, forceOpen){
+  const kids = document.getElementById('cat-children-'+i);
+  const parent = document.getElementById('cat-parent-'+i);
+  const willOpen = forceOpen || !kids.classList.contains('open');
+  kids.classList.toggle('open', willOpen);
+  parent.classList.toggle('open', willOpen);
+}
+function openCategoryModal(type, id){
+  const isSub = type==='sub';
+  let existing=null;
+  if(id){ for(const c of CATEGORIES){ if(c.id===id) existing=c; for(const s of c.subs) if(s.id===id) existing=s; } }
+  openModal(`
+    <div class="modal-head"><h3>${existing?'Edit':'Add'} ${isSub?'Sub-category':'Category'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field full"><label>Name</label><input value="${existing?existing.name:''}"></div>
+        ${isSub? `<div class="form-field full"><label>Parent Category</label><select>${CATEGORIES.map(c=>`<option>${c.name}</option>`).join('')}</select></div>`:''}
+        <div class="form-field full"><label>Description</label><textarea placeholder="Optional short description shown on category page"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal(); showToast('${isSub?'Sub-category':'Category'} saved successfully'); renderCategories();">Save</button>
+    </div>
+  `);
+}
+
+/* ============================================================
+   BANNERS
+============================================================ */
+function renderBanners(){
+  document.getElementById('bannerGrid').innerHTML = BANNERS.map(b=>`
+    <div class="banner-card">
+      <div class="banner-art" style="background:linear-gradient(135deg, ${b.color1}, ${b.color2});">${b.title}</div>
+      <div class="banner-info">
+        <div class="cell-sub" style="text-transform:uppercase;font-weight:600;letter-spacing:.04em;color:var(--muted);font-size:10.5px;">${b.kind}</div>
+        <div class="cell-title" style="margin:3px 0 2px;">${b.title}</div><div class="cell-sub">${b.sub}</div>
+      </div>
+      <div class="banner-foot">
+        <span class="badge ${b.status==='Active'?'b-active':'b-inactive'}">${b.status}</span>
+        <div class="row-actions">
+          <div class="icon-mini" onclick="openBannerModal(${b.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+          <div class="icon-mini" onclick="toggleBanner(${b.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function toggleBanner(id){ const b = BANNERS.find(x=>x.id===id); b.status = b.status==='Active'?'Inactive':'Active'; renderBanners(); showToast('Banner status updated'); }
+function openBannerModal(id){
+  const b = id? BANNERS.find(x=>x.id===id): null;
+  openModal(`
+    <div class="modal-head"><h3>${b?'Edit Banner':'Add Banner'}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field"><label>Banner Type</label><select><option ${b&&b.kind==='Homepage Banner'?'selected':''}>Homepage Banner</option><option ${b&&b.kind==='Category Banner'?'selected':''}>Category Banner</option><option ${b&&b.kind==='Offer Banner'?'selected':''}>Offer Banner</option></select></div>
+        <div class="form-field"><label>Status</label><select><option ${b&&b.status==='Active'?'selected':''}>Active</option><option ${b&&b.status==='Inactive'?'selected':''}>Inactive</option></select></div>
+        <div class="form-field full"><label>Title</label><input value="${b?b.title:''}"></div>
+        <div class="form-field full"><label>Subtitle</label><input value="${b?b.sub:''}"></div>
+        <div class="form-field full"><label>Banner Image</label><div class="banner-art" style="border-radius:10px;background:linear-gradient(135deg, ${b?b.color1:'#101828'}, ${b?b.color2:'#2F80ED'});">${b?b.title:'Preview'}</div></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal(); showToast('Banner saved successfully');">Save Banner</button>
+    </div>
+  `);
+}
+
+/* ============================================================
+   ORDERS
+============================================================ */
+function renderOrders(){
+  const q = (document.getElementById('orderSearch').value||'').toLowerCase();
+  const stat = document.getElementById('orderStatusFilter').value;
+  let rows = ORDERS.filter(o=>{
+    if(q && !o.id.toLowerCase().includes(q) && !o.customer.toLowerCase().includes(q)) return false;
+    if(stat && o.status!==stat) return false;
+    return true;
+  });
+  document.getElementById('ordersBody').innerHTML = rows.map(o=>`
+    <tr onclick="openOrderModal('${o.id}')">
+      <td><b>${o.id}</b></td><td>${o.customer}</td><td>${o.date}</td><td>${o.items}</td>
+      <td><b>$${o.total}</b></td><td class="cell-sub">Cash on Delivery</td>
+      <td><span class="badge ${badgeClassOrder(o.status)}">${o.status}</span></td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:26px;">No orders match your filters.</td></tr>`;
+  document.getElementById('ordersPager').innerHTML = `<span>${rows.length} of ${ORDERS.length} orders</span>
+    <div class="pages"><button class="on">1</button><button>2</button><button>›</button></div>`;
+}
+function openOrderModal(id){
+  const o = ORDERS.find(x=>x.id===id);
+  const stepIdx = STATUS_FLOW.indexOf(o.status);
+  const cancelled = o.status==='Cancelled';
+  openModal(`
+    <div class="modal-head"><h3>${o.id}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      ${cancelled? `<div class="badge b-cancelled" style="margin-bottom:14px;">Cancelled by customer</div>` : `
+      <div class="track-steps">${STATUS_FLOW.map((s,i)=>`<div class="track-step ${i<stepIdx?'done':i===stepIdx?'now':''}"><div class="track-dot"></div><span>${s}</span></div>`).join('')}</div>`}
+      <div class="detail-row"><span>Customer</span><span>${o.customer}</span></div>
+      <div class="detail-row"><span>Phone</span><span>${o.phone}</span></div>
+      <div class="detail-row"><span>Delivery Address</span><span style="max-width:60%;text-align:right;">${o.addr}</span></div>
+      <div class="detail-row"><span>Order Date</span><span>${o.date}</span></div>
+      <div class="detail-row"><span>Payment Method</span><span>Cash on Delivery</span></div>
+      <div class="detail-row"><span>Items</span><span>${o.items}</span></div>
+      <div class="detail-row"><span>Order Total</span><span>$${o.total}</span></div>
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="form-field"><label>Update Status</label><select id="order-status-select">${STATUS_FLOW.concat(['Cancelled']).map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="form-field"><label>Tracking Number</label><input id="order-tracking-input" value="${o.tracking}" placeholder="e.g. USPS3384211"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="saveOrder('${o.id}')">Update Order</button>
+    </div>
+  `);
+}
+function saveOrder(id){
+  const o = ORDERS.find(x=>x.id===id);
+  o.status = document.getElementById('order-status-select').value;
+  o.tracking = document.getElementById('order-tracking-input').value;
+  closeModal(); renderOrders(); renderDashboard(); showToast('Order updated successfully');
+}
+
+/* ============================================================
+   ABANDONED CARTS
+============================================================ */
+function renderCarts(){
+  const q = (document.getElementById('cartSearch').value||'').toLowerCase();
+  const statF = document.getElementById('cartStatusFilter').value;
+  let rows = CARTS.filter(c=>{
+    const status = cartStatus(c.hoursIdle);
+    if(q && !c.customer.toLowerCase().includes(q)) return false;
+    if(statF && status!==statF) return false;
+    return true;
+  });
+  document.getElementById('cartsBody').innerHTML = rows.map(c=>{
+    const status = cartStatus(c.hoursIdle);
+    const value = cartValue(c);
+    const itemNames = c.items.map(it=>{ const p=PRODUCTS.find(x=>x.id===it.pid); return p? p.name+(it.qty>1?' ×'+it.qty:'') : ''; }).filter(Boolean);
+    const preview = itemNames.slice(0,2).join(', ') + (itemNames.length>2? ' +'+(itemNames.length-2)+' more' : '');
+    return `<tr onclick="openCartModal(${c.id})">
+      <td><div class="cell-flex"><div class="avatar" style="width:32px;height:32px;font-size:11px;">${c.customer.split(' ').map(n=>n[0]).join('')}</div>
+        <div><div class="cell-title">${c.customer}</div><div class="cell-sub">${c.email}</div></div></div></td>
+      <td><div class="cell-sub" style="max-width:260px;">${preview}</div></td>
+      <td><b>$${value}</b></td>
+      <td class="cell-sub">${cartAgeLabel(c.hoursIdle)}</td>
+      <td><span class="badge b-cart${status.toLowerCase()}">${status}</span></td>
+      <td onclick="event.stopPropagation()"><button class="btn btn-ghost btn-sm" onclick="sendCartReminder(${c.id})">Send Reminder</button></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px;">No carts match your filters.</td></tr>`;
+
+  document.getElementById('cartsTotalValue').textContent = rows.length+' cart'+(rows.length===1?'':'s')+' · $'+rows.reduce((s,c)=>s+cartValue(c),0).toLocaleString('en-US')+' in potential sales';
+  const navCount = document.getElementById('cartsNavCount');
+  if(navCount) navCount.textContent = CARTS.filter(c=>cartStatus(c.hoursIdle)!=='Active').length;
+}
+function openCartModal(id){
+  const c = CARTS.find(x=>x.id===id);
+  const status = cartStatus(c.hoursIdle);
+  openModal(`
+    <div class="modal-head"><h3>${c.customer}'s Cart</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Email</span><span>${c.email}</span></div>
+      <div class="detail-row"><span>Phone</span><span>${c.phone}</span></div>
+      <div class="detail-row"><span>Last Activity</span><span>${cartAgeLabel(c.hoursIdle)}</span></div>
+      <div class="detail-row"><span>Status</span><span><span class="badge b-cart${status.toLowerCase()}">${status}</span></span></div>
+      <h3 style="font-size:14px;margin:18px 0 8px;">Items in Cart</h3>
+      ${c.items.map(it=>{
+        const p = PRODUCTS.find(x=>x.id===it.pid);
+        if(!p) return '';
+        const unit = Math.round(p.price*(1-p.discount/100));
+        return `<div class="cell-flex" style="padding:9px 0;border-bottom:1px solid var(--border);">
+          <div class="prod-thumb" style="background:${p.color}22;">${p.emoji}</div>
+          <div style="flex:1;"><div class="cell-title" style="font-size:13px;">${p.name}</div><div class="cell-sub">Qty ${it.qty} × $${unit}</div></div>
+          <div style="font-weight:700;">$${unit*it.qty}</div>
+        </div>`;
+      }).join('')}
+      <div class="detail-row" style="margin-top:6px;"><span>Cart Total</span><span>$${cartValue(c)}</span></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-ghost" onclick="showToast('Calling ${c.customer} (mockup)')">Call Customer</button>
+      <button class="btn btn-flame" onclick="sendCartReminder(${c.id}); closeModal();">Send Reminder Email</button>
+    </div>
+  `);
+}
+function sendCartReminder(id){
+  const c = CARTS.find(x=>x.id===id);
+  showToast('Reminder email sent to '+c.customer);
+}
+
+/* ============================================================
+   CUSTOMERS
+============================================================ */
+function renderCustomers(){
+  const q = (document.getElementById('customerSearch').value||'').toLowerCase();
+  let rows = CUSTOMERS.filter(c=> !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q));
+  document.getElementById('customersBody').innerHTML = rows.map(c=>`
+    <tr onclick="openCustomerModal(${c.id})">
+      <td><div class="cell-flex"><div class="avatar" style="width:32px;height:32px;font-size:11px;">${c.name.split(' ').map(n=>n[0]).join('')}</div><div class="cell-title">${c.name}</div></div></td>
+      <td><div>${c.email}</div><div class="cell-sub">${c.phone}</div></td>
+      <td>${c.city}</td><td>${c.orders}</td><td><b>$${c.spent}</b></td><td class="cell-sub">${c.joined}</td>
+    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px;">No customers found.</td></tr>`;
+}
+function openCustomerModal(id){
+  const c = CUSTOMERS.find(x=>x.id===id);
+  const customerOrders = ORDERS.filter(o=>o.customer===c.name);
+  openModal(`
+    <div class="modal-head"><h3>${c.name}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Email</span><span>${c.email}</span></div>
+      <div class="detail-row"><span>Phone</span><span>${c.phone}</span></div>
+      <div class="detail-row"><span>City</span><span>${c.city}</span></div>
+      <div class="detail-row"><span>Customer Since</span><span>${c.joined}</span></div>
+      <div class="detail-row"><span>Total Orders</span><span>${c.orders}</span></div>
+      <div class="detail-row"><span>Total Spent</span><span>$${c.spent}</span></div>
+      <h3 style="font-size:14px;margin:18px 0 8px;">Order History</h3>
+      ${customerOrders.length? customerOrders.map(o=>`<div class="detail-row"><span>${o.id} · ${o.date}</span><span>$${o.total} · <span class="badge ${badgeClassOrder(o.status)}">${o.status}</span></span></div>`).join('') : `<p class="cell-sub">No orders on record in this mockup dataset.</p>`}
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+/* ============================================================
+   REPORTS
+============================================================ */
+function renderReports(){
+  const days = [
+    {d:'Mon',v:2100},{d:'Tue',v:2600},{d:'Wed',v:1950},{d:'Thu',v:3200},{d:'Fri',v:3800},{d:'Sat',v:4600},{d:'Sun',v:3400}
+  ];
+  const max = Math.max(...days.map(x=>x.v));
+  document.getElementById('reportSalesBars').innerHTML = days.map(x=>`
+    <div class="report-bar-wrap">
+      <div class="report-bar" style="height:${Math.round(x.v/max*130)}px;"></div>
+      <div class="report-bar-label">${x.d}</div>
+    </div>`).join('');
+
+  const statusCounts = {};
+  ORDERS.forEach(o=>{ statusCounts[o.status] = (statusCounts[o.status]||0)+1; });
+  document.getElementById('reportOrderStatus').innerHTML = Object.entries(statusCounts).map(([status,count])=>{
+    const pct = Math.round(count/ORDERS.length*100);
+    return `<div style="margin-bottom:13px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><b>${status}</b><span class="cell-sub">${count} orders</span></div>
+      <div style="height:8px;background:var(--canvas);border-radius:20px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--flame);border-radius:20px;"></div></div>
+    </div>`;
+  }).join('');
+
+  const top = [...PRODUCTS].sort((a,b)=> (b.stock*0.3) - (a.stock*0.3)).slice(0,5);
+  document.getElementById('reportTopProducts').innerHTML = top.map(p=>{
+    const units = Math.floor(20+Math.random()*60);
+    return `<tr><td><div class="cell-flex"><div class="prod-thumb" style="background:${p.color}22;">${p.emoji}</div><div class="cell-title">${p.name}</div></div></td><td>${units}</td><td><b>$${(units*p.price).toLocaleString('en-US')}</b></td></tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   BILLING & SUBSCRIPTION
+============================================================ */
+function toggleBillingCycle(){
+  billingYearly = !billingYearly;
+  document.getElementById('billSwitch').classList.toggle('yearly', billingYearly);
+  document.getElementById('billMonthlyLabel').style.color = billingYearly ? 'var(--muted)' : 'var(--text)';
+  document.getElementById('billYearlyLabel').style.color = billingYearly ? 'var(--text)' : 'var(--muted)';
+  renderPlanPicker();
+}
+function renderPlanPicker(){
+  document.getElementById('planPickGrid').innerHTML = PLANS.map(p=>{
+    const price = billingYearly? p.yearly : p.monthly;
+    const period = billingYearly? '/ year' : '/ month';
+    const isCurrent = p.name===currentPlan;
+    const isFeatured = p.name==='Growth' && !isCurrent;
+    return `<div class="plan-pick-card ${isCurrent?'current':isFeatured?'featured':''}">
+      ${isCurrent?'<div class="plan-pick-badge current">Current Plan</div>':isFeatured?'<div class="plan-pick-badge featured">Popular</div>':''}
+      <div class="pp-name">${p.name}</div>
+      <div class="pp-price">$${price}<span> ${period}</span></div>
+      <ul class="pp-feat">${p.feats.map(f=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>${f}</li>`).join('')}</ul>
+      ${isCurrent
+        ? `<button class="btn btn-ghost btn-block" disabled style="opacity:.6;cursor:default;">Current Plan</button>`
+        : `<button class="btn ${isFeatured?'btn-flame':'btn-ghost'} btn-block" onclick="openPurchaseModal('${p.name}')">${planRank(p.name)>planRank(currentPlan)?'Upgrade':'Downgrade'} to ${p.name}</button>`}
+    </div>`;
+  }).join('');
+}
+function planRank(name){ return PLANS.findIndex(p=>p.name===name); }
+
+function openPurchaseModal(planName){
+  const p = PLANS.find(x=>x.name===planName);
+  const price = billingYearly? p.yearly : p.monthly;
+  const period = billingYearly? 'year' : 'month';
+  const isUpgrade = planRank(planName) > planRank(currentPlan);
+  openModal(`
+    <div class="modal-head"><h3>${isUpgrade?'Upgrade':'Downgrade'} to ${planName}</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-row"><span>New Plan</span><span>${planName}</span></div>
+      <div class="detail-row"><span>Billing Cycle</span><span>${billingYearly?'Yearly':'Monthly'}</span></div>
+      <div class="detail-row"><span>Price</span><span>$${price} / ${period}</span></div>
+      ${isUpgrade
+        ? `<div class="detail-row"><span>Effective</span><span>Immediately — prorated charge applied today</span></div>`
+        : `<div class="detail-row"><span>Effective</span><span>At the start of your next billing cycle</span></div>`}
+      <div class="form-grid" style="margin-top:16px;">
+        <div class="form-field full"><label>Name on Card</label><input value="Nikhil Rao"></div>
+        <div class="form-field"><label>Card Number</label><input value="•••• •••• •••• 4242"></div>
+        <div class="form-field"><label>Expiry</label><input value="09/28"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-flame" onclick="confirmPlanChange('${planName}', ${price})">Confirm ${isUpgrade?'Upgrade':'Downgrade'}</button>
+    </div>
+  `);
+}
+function confirmPlanChange(planName, price){
+  currentPlan = planName;
+  INVOICES.unshift({ id:'INV-0'+Math.floor(200+Math.random()*99), date:new Date().toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric'}), plan:planName, amount:price, status:'Paid' });
+  document.getElementById('cp-plan-name').textContent = planName+' — $'+PLANS.find(p=>p.name===planName).monthly+'/month';
+  document.querySelector('.plan-tag').textContent = planName+' Plan';
+  closeModal(); renderPlanPicker(); renderInvoices(); renderDashboard();
+  showToast('You are now on the '+planName+' plan 🎉');
+}
+function openCancelModal(){
+  openModal(`
+    <div class="modal-head"><h3>Cancel Subscription</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p class="cell-sub">If you cancel, your storefront will remain live until the end of your current billing period, then be archived. You can reactivate anytime before archival.</p>
+      <div class="detail-row"><span>Current Plan</span><span>${currentPlan}</span></div>
+      <div class="detail-row"><span>Access Until</span><span>August 9, 2026</span></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Keep My Plan</button>
+      <button class="btn btn-danger-ghost" onclick="closeModal(); showToast('Subscription set to cancel at period end');">Confirm Cancellation</button>
+    </div>
+  `);
+}
+function renderInvoices(){
+  document.getElementById('invoiceList').innerHTML = INVOICES.map(inv=>`
+    <div class="invoice-row">
+      <div style="flex:1;"><b>${inv.id}</b></div>
+      <div style="flex:1;" class="cell-sub">${inv.date}</div>
+      <div style="flex:1;">${inv.plan} Plan</div>
+      <div style="flex:1;"><b>$${inv.amount}</b></div>
+      <div style="flex:1;"><span class="badge ${inv.status==='Paid'?'b-paid':'b-failed'}">${inv.status}</span></div>
+      <div><button class="btn btn-ghost btn-sm" onclick="showToast('Downloading ${inv.id}.pdf (mockup)')">Download</button></div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   SETTINGS TABS
+============================================================ */
+document.querySelectorAll('.stab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.settings-pane').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('.swatch').forEach(s=>{
+  s.addEventListener('click', ()=>{ document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel')); s.classList.add('sel'); });
+});
+
+/* ============================================================
+   GLOBAL SEARCH
+============================================================ */
+document.getElementById('globalSearch').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const q = e.target.value.trim();
+    if(!q) return;
+    if(/^al-/i.test(q)){ setView('orders'); document.getElementById('orderSearch').value=q; renderOrders(); }
+    else { setView('products'); document.getElementById('productSearch').value=q; renderProducts(); }
+    showToast('Showing results for "'+q+'"');
+  }
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+populateCategoryFilter();
+renderDashboard();
+renderProducts();
+renderCategories();
+renderBanners();
+renderOrders();
+renderCarts();
+renderCustomers();
+renderReports();
+renderPlanPicker();
+renderInvoices();
+</script>
+</body>
+</html>

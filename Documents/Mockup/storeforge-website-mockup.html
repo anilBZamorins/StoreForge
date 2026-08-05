@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreForge — Launch Your Store in Minutes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F172A;
+    --ink-2:#16213e;
+    --flame:#FF5A36;
+    --flame-dim:#FFE3DA;
+    --sky:#2F80ED;
+    --success:#1F9D55;
+    --danger:#D64545;
+    --warn:#B4790C;
+    --canvas:#F7F8FB;
+    --surface:#FFFFFF;
+    --text:#101828;
+    --muted:#667085;
+    --border:#E4E7EC;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--surface);}
+  h1,h2,h3,.font-display{font-family:'Sora',system-ui,sans-serif;}
+  a{text-decoration:none;color:inherit;}
+  img,svg{display:block;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+  .page{display:none;}
+  .page.active{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---------- NAVBAR ---------- */
+  .navbar{
+    position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{max-width:1120px;margin:0 auto;padding:0 28px;height:72px;display:flex;align-items:center;gap:8px;}
+  .logo{display:flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:19px;cursor:pointer;}
+  .logo-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--flame),#ff8a5c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;}
+  .nav-links{display:flex;gap:6px;margin-left:36px;}
+  .nav-link{padding:9px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;}
+  .nav-link:hover{color:var(--text);background:var(--canvas);}
+  .nav-link.active{color:var(--text);font-weight:600;}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:'Inter',sans-serif;white-space:nowrap;}
+  .btn svg{width:15px;height:15px;}
+  .btn-flame{background:var(--flame);color:#fff;}
+  .btn-flame:hover{background:#e64a26;}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border);}
+  .btn-ghost:hover{background:var(--canvas);}
+  .btn-dark{background:var(--ink);color:#fff;}
+  .btn-dark:hover{background:var(--ink-2);}
+  .btn-lg{padding:14px 26px;font-size:15.5px;border-radius:11px;}
+  .btn-block{width:100%;justify-content:center;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%), radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);
+    padding:76px 0 60px;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:48px;align-items:center;}
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);padding:6px 13px;border-radius:20px;font-size:12.5px;font-weight:600;color:var(--flame);margin-bottom:20px;}
+  .eyebrow svg{width:13px;height:13px;}
+  h1.hero-title{font-size:46px;line-height:1.08;font-weight:800;letter-spacing:-0.5px;margin:0 0 18px;}
+  h1.hero-title span{color:var(--flame);}
+  .hero-sub{font-size:17px;color:var(--muted);line-height:1.6;max-width:520px;margin-bottom:30px;}
+  .hero-ctas{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+  .hero-meta{display:flex;gap:22px;font-size:12.5px;color:var(--muted);flex-wrap:wrap;}
+  .hero-meta b{color:var(--text);}
+
+  .browser-mock{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 60px rgba(15,23,42,0.12);overflow:hidden;}
+  .browser-bar{height:38px;background:#F1F2F6;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 14px;}
+  .browser-dot{width:9px;height:9px;border-radius:50%;background:#D6D9E0;}
+  .browser-body{padding:20px;}
+  .bm-hero{height:110px;border-radius:10px;background:linear-gradient(135deg,#111827,#374151);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;}
+  .bm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+  .bm-card{aspect-ratio:1;border-radius:9px;background:#F1F2F6;border:1px solid var(--border);}
+
+  /* ---------- LOGOS STRIP ---------- */
+  .logo-strip{padding:34px 0;border-bottom:1px solid var(--border);}
+  .logo-strip .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+  .logo-strip span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+  .logo-strip .fauxlogos{display:flex;gap:32px;flex-wrap:wrap;}
+  .fauxlogo{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#C4C9D4;}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:74px 0;}
+  .section-head{text-align:center;max-width:600px;margin:0 auto 46px;}
+  .kicker{color:var(--flame);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+  .section-head h2{font-size:32px;margin:0 0 12px;letter-spacing:-.3px;}
+  .section-head p{color:var(--muted);font-size:15.5px;line-height:1.6;}
+
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media (max-width:860px){.feat-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:600px){.feat-grid{grid-template-columns:1fr;}}
+  .feat-card{border:1px solid var(--border);border-radius:var(--radius);padding:26px;background:var(--surface);}
+  .feat-icon{width:42px;height:42px;border-radius:11px;background:var(--flame-dim);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;}
+  .feat-card h3{font-size:16px;margin:0 0 8px;}
+  .feat-card p{font-size:13.5px;color:var(--muted);line-height:1.6;margin:0;}
+
+  .steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;position:relative;}
+  @media (max-width:860px){.steps-row{grid-template-columns:1fr;}}
+  .step-card{text-align:center;padding:0 10px;}
+  .step-num{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;margin:0 auto 16px;}
+  .step-card h3{font-size:16px;margin:0 0 8px;}
+  .step-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+
+  .pricing-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media (max-width:860px){.pricing-preview-grid{grid-template-columns:1fr;}}
+
+  .testimonial{background:var(--ink);border-radius:20px;padding:50px;text-align:center;color:#fff;}
+  .testimonial blockquote{font-family:'Sora',sans-serif;font-size:22px;font-weight:600;max-width:680px;margin:0 auto 22px;line-height:1.5;}
+  .testimonial .who{font-size:13px;color:#9AA5B8;}
+
+  .cta-band{background:linear-gradient(135deg,var(--flame),#ff8a5c);border-radius:20px;padding:52px;text-align:center;color:#fff;}
+  .cta-band h2{margin:0 0 10px;font-size:28px;}
+  .cta-band p{margin:0 0 26px;opacity:.92;font-size:15px;}
+  .cta-band .btn-dark{background:#101828;}
+
+  footer{background:var(--ink);color:#9AA5B8;padding:52px 0 26px;font-size:13.5px;}
+  .foot-grid{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:32px;margin-bottom:36px;}
+  @media (max-width:760px){.foot-grid{grid-template-columns:1fr 1fr;}}
+  .foot-grid h4{color:#fff;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px;}
+  .foot-grid a{display:block;margin-bottom:9px;color:#9AA5B8;cursor:pointer;}
+  .foot-grid a:hover{color:#fff;}
+  .foot-bottom{border-top:1px solid rgba(255,255,255,0.1);padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  /* ---------- PRICING PAGE ---------- */
+  .page-hero{padding:56px 0 20px;text-align:center;}
+  .page-hero h1{font-size:38px;margin:0 0 12px;}
+  .page-hero p{color:var(--muted);font-size:16px;max-width:560px;margin:0 auto;}
+
+  .billing-toggle{display:flex;align-items:center;justify-content:center;gap:14px;margin:34px 0 44px;}
+  .bt-label{font-size:14px;font-weight:600;color:var(--muted);}
+  .bt-label.on{color:var(--text);}
+  .bt-switch{position:relative;width:52px;height:28px;background:var(--border);border-radius:20px;cursor:pointer;}
+  .bt-switch .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);transition:.2s;}
+  .bt-switch.yearly{background:var(--flame);}
+  .bt-switch.yearly .knob{transform:translateX(24px);}
+  .save-chip{background:var(--flame-dim);color:var(--flame);font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:20px;}
+
+  .plan-card{border:1px solid var(--border);border-radius:18px;padding:28px;background:var(--surface);position:relative;display:flex;flex-direction:column;}
+  .plan-card.featured{border-color:var(--flame);box-shadow:0 0 0 3px var(--flame-dim);}
+  .plan-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--flame);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;}
+  .plan-name{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px;}
+  .plan-desc{font-size:12.8px;color:var(--muted);margin-bottom:18px;min-height:32px;}
+  .plan-price{font-family:'Sora',sans-serif;font-weight:800;font-size:36px;}
+  .plan-price span{font-size:13px;font-weight:500;color:var(--muted);}
+  .plan-old{font-size:13px;color:var(--muted);text-decoration:line-through;margin-left:6px;}
+  .plan-feat{list-style:none;padding:0;margin:22px 0;display:flex;flex-direction:column;gap:11px;font-size:13.5px;flex:1;}
+  .plan-feat li{display:flex;gap:9px;align-items:flex-start;}
+  .plan-feat svg{width:15px;height:15px;color:var(--success);flex-shrink:0;margin-top:2px;}
+
+  .compare-table{width:100%;border-collapse:collapse;margin-top:60px;font-size:13.5px;}
+  .compare-table th,.compare-table td{padding:14px 16px;border-bottom:1px solid var(--border);text-align:center;}
+  .compare-table th{font-family:'Sora',sans-serif;font-size:14px;}
+  .compare-table td:first-child,.compare-table th:first-child{text-align:left;color:var(--muted);}
+  .compare-table svg{width:16px;height:16px;color:var(--success);}
+
+  .faq-item{border-bottom:1px solid var(--border);padding:18px 0;cursor:pointer;}
+  .faq-q{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14.5px;}
+  .faq-q svg{width:16px;height:16px;color:var(--muted);transition:transform .15s;flex-shrink:0;}
+  .faq-item.open .faq-q svg{transform:rotate(180deg);}
+  .faq-a{max-height:0;overflow:hidden;font-size:13.5px;color:var(--muted);line-height:1.6;transition:max-height .2s ease;}
+  .faq-item.open .faq-a{max-height:200px;padding-top:10px;}
+
+  /* ---------- CONTACT PAGE ---------- */
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+  @media (max-width:860px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-info-item{display:flex;gap:14px;margin-bottom:22px;}
+  .contact-icon{width:38px;height:38px;border-radius:10px;background:var(--flame-dim);color:var(--flame);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .contact-icon svg{width:17px;height:17px;}
+  .contact-info-item h4{margin:0 0 3px;font-size:14.5px;}
+  .contact-info-item p{margin:0;font-size:13.3px;color:var(--muted);}
+
+  .form-card{border:1px solid var(--border);border-radius:var(--radius);padding:28px;background:var(--surface);}
+  .form-field{margin-bottom:16px;}
+  .form-field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px;}
+  .form-field input,.form-field select,.form-field textarea{
+    width:100%;border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:13.8px;font-family:'Inter',sans-serif;
+    outline:none;background:var(--canvas);color:var(--text);
+  }
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--flame);background:#fff;}
+  .form-field textarea{resize:vertical;min-height:100px;}
+  .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+  /* ---------- REGISTER PAGE (WIZARD) ---------- */
+  .wizard-wrap{max-width:640px;margin:0 auto;}
+  .wizard-steps{display:flex;justify-content:space-between;margin-bottom:38px;position:relative;}
+  .wizard-steps::before{content:"";position:absolute;top:15px;left:5%;right:5%;height:2px;background:var(--border);z-index:0;}
+  .wstep{display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;z-index:1;flex:1;}
+  .wstep-dot{width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:var(--muted);}
+  .wstep.done .wstep-dot{background:var(--success);border-color:var(--success);color:#fff;}
+  .wstep.now .wstep-dot{background:var(--flame);border-color:var(--flame);color:#fff;}
+  .wstep span{font-size:11.5px;color:var(--muted);text-align:center;}
+  .wstep.now span,.wstep.done span{color:var(--text);font-weight:600;}
+
+  .wizard-panel{border:1px solid var(--border);border-radius:18px;padding:34px;background:var(--surface);}
+  .wizard-panel h3{font-size:19px;margin:0 0 6px;}
+  .wizard-panel .sub{color:var(--muted);font-size:13.5px;margin-bottom:26px;}
+  .wpage{display:none;}
+  .wpage.active{display:block;}
+  .wizard-foot{display:flex;justify-content:space-between;margin-top:26px;}
+
+  .mini-plan{border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:12px;}
+  .mini-plan.sel{border-color:var(--flame);background:var(--flame-dim);}
+  .mini-plan input{width:17px;height:17px;accent-color:var(--flame);}
+  .mini-plan .mp-name{font-weight:700;font-size:14.5px;}
+  .mini-plan .mp-price{margin-left:auto;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;}
+  .mini-plan .mp-desc{font-size:12px;color:var(--muted);}
+
+  .trial-box{display:flex;align-items:center;gap:10px;background:#EAF6EF;border:1px solid #CDEBD9;border-radius:10px;padding:12px 14px;margin-top:16px;font-size:13px;color:#166B3C;}
+  .trial-box input{width:16px;height:16px;accent-color:var(--success);}
+
+  .progress-check{display:flex;align-items:center;gap:12px;padding:11px 0;font-size:13.5px;color:var(--muted);}
+  .progress-check .pc-dot{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .progress-check.done{color:var(--text);}
+  .progress-check.done .pc-dot{background:var(--success);}
+  .progress-check.done .pc-dot svg{width:11px;height:11px;color:#fff;}
+  .spin{width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .progress-check.active .pc-dot{background:var(--flame);}
+
+  .credential-box{background:#F5F1FD;border:1px solid #E1D4FB;border-radius:12px;padding:18px;margin-top:18px;}
+  .credential-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13.3px;}
+  .credential-row code{background:#fff;border:1px solid #E1D4FB;padding:4px 9px;border-radius:6px;font-family:monospace;font-size:12.5px;}
+
+  /* ---------- LOGIN PAGE ---------- */
+  .login-wrap{max-width:420px;margin:0 auto;}
+  .login-card{border:1px solid var(--border);border-radius:18px;padding:32px;background:var(--surface);}
+  .login-tabs{display:flex;background:var(--canvas);border-radius:10px;padding:4px;margin-bottom:24px;}
+  .login-tab{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:13.3px;font-weight:600;color:var(--muted);cursor:pointer;}
+  .login-tab.active{background:#fff;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+  .login-links{display:flex;justify-content:space-between;font-size:12.8px;margin:6px 0 20px;}
+  .login-links a{color:var(--flame);font-weight:600;}
+  .login-foot{text-align:center;font-size:13px;color:var(--muted);margin-top:18px;}
+  .login-foot a{color:var(--flame);font-weight:600;}
+
+  .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+  .toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.2);animation:slidein .2s ease;}
+  .toast svg{width:15px;height:15px;color:var(--flame);flex-shrink:0;}
+  @keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<div class="navbar">
+  <div class="nav-inner">
+    <div class="logo" onclick="setPage('home')">
+      <div class="logo-mark">SF</div>
+      StoreForge
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home">Home</button>
+      <button class="nav-link" data-page="features">Features</button>
+      <button class="nav-link" data-page="pricing">Pricing</button>
+      <button class="nav-link" data-page="contact">Contact</button>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-ghost" data-page="login">Log In</button>
+      <button class="btn btn-flame" data-page="register">Start Free Trial</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HOME ===================== -->
+<div class="page active" id="page-home">
+  <section class="hero" style="padding-top:76px;">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4Z"/></svg>
+          Now supporting Cash on Delivery checkout
+        </div>
+        <h1 class="hero-title">Launch your online store <span>in minutes</span>, not months.</h1>
+        <p class="hero-sub">StoreForge is a multi-tenant eCommerce platform that gives every business its own fully branded storefront, admin dashboard, and order management system — no code, no servers, no developers required.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-flame btn-lg" data-page="register">
+            Start Free Trial
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-lg" data-page="pricing">View Pricing</button>
+        </div>
+        <div class="hero-meta">
+          <div><b>5 min</b> average setup time</div>
+          <div><b>99.9%</b> platform uptime</div>
+          <div><b>No card required</b> for 14-day trial</div>
+        </div>
+      </div>
+      <div class="browser-mock">
+        <div class="browser-bar"><div class="browser-dot"></div><div class="browser-dot"></div><div class="browser-dot"></div></div>
+        <div class="browser-body">
+          <div class="bm-hero">yourstorename.storeforge.io</div>
+          <div class="bm-grid">
+            <div class="bm-card"></div><div class="bm-card"></div><div class="bm-card"></div><div class="bm-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="logo-strip">
+    <div class="wrap">
+      <span>Trusted by store owners across every category</span>
+      <div class="fauxlogos">
+        <div class="fauxlogo">Aura Living</div>
+        <div class="fauxlogo">UrbanCart</div>
+        <div class="fauxlogo">Glow Beauty</div>
+        <div class="fauxlogo">TechNest</div>
+        <div class="fauxlogo">Spice Route</div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Why StoreForge</div>
+        <h2>Everything you need to sell online</h2>
+        <p>One subscription. A complete, independently branded store — catalog, cart, checkout, and a dashboard built for growth.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card"><div class="feat-icon">🏬</div><h3>Instant Store Provisioning</h3><p>Your isolated store environment is created automatically the moment your subscription is confirmed.</p></div>
+        <div class="feat-card"><div class="feat-icon">🛒</div><h3>Full Storefront</h3><p>Home page, categories, product details, wishlist, cart and checkout — ready out of the box.</p></div>
+        <div class="feat-card"><div class="feat-icon">📦</div><h3>Order Management</h3><p>Track every order from placed to delivered, with status updates your customers can see.</p></div>
+        <div class="feat-card"><div class="feat-icon">🎨</div><h3>Your Branding</h3><p>Upload your logo, choose your colors, and customize banners — it's your store, your identity.</p></div>
+        <div class="feat-card"><div class="feat-icon">📊</div><h3>Sales Reports</h3><p>Understand what's selling with built-in sales, order, and customer reports.</p></div>
+        <div class="feat-card"><div class="feat-icon">🔒</div><h3>Secure & Isolated</h3><p>Your data is fully isolated from every other tenant on the platform, with role-based access control.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">How it works</div>
+        <h2>From sign-up to live store in three steps</h2>
+      </div>
+      <div class="steps-row">
+        <div class="step-card"><div class="step-num">1</div><h3>Create your account</h3><p>Register your business and choose a monthly or yearly subscription plan — or start with a 14-day free trial.</p></div>
+        <div class="step-card"><div class="step-num">2</div><h3>We provision your store</h3><p>StoreForge automatically sets up your isolated storefront, admin dashboard, and default catalog structure.</p></div>
+        <div class="step-card"><div class="step-num">3</div><h3>Start selling</h3><p>Log in to your Store Admin Dashboard, add products, and your store is live and ready to take orders.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Simple pricing</div>
+        <h2>Plans that grow with your business</h2>
+        <p>Cancel or switch plans anytime. All plans include a 14-day free trial.</p>
+      </div>
+      <div class="pricing-preview-grid" id="pricingPreview"></div>
+      <div style="text-align:center;margin-top:30px;"><button class="btn btn-dark btn-lg" data-page="pricing">Compare all plans</button></div>
+    </div>
+  </section>
+
+  <section style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="testimonial">
+        <blockquote>"We went from an idea to a fully working store in about ten minutes. Order tracking and the admin dashboard have been rock solid since day one."</blockquote>
+        <div class="who">— Asha Menon, Founder, UrbanCart</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Ready to launch your store?</h2>
+        <p>Join hundreds of businesses already selling on StoreForge.</p>
+        <button class="btn btn-dark btn-lg" data-page="register">Start Your Free Trial</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== FEATURES ===================== -->
+<div class="page" id="page-features">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="kicker">Platform Features</div>
+      <h1>Built for store owners, powered by StoreForge</h1>
+      <p>Every plan includes the core commerce toolkit — no add-ons required to get selling.</p>
+    </div>
+  </section>
+  <section style="padding-top:20px;">
+    <div class="wrap">
+      <div class="feat-grid">
+        <div class="feat-card"><div class="feat-icon">🌐</div><h3>Marketing Website</h3><p>A polished public site with landing page, pricing, and contact form to convert visitors into subscribers.</p></div>
+        <div class="feat-card"><div class="feat-icon">💳</div><h3>Subscription Billing</h3><p>Monthly and yearly billing, free trials, upgrades, downgrades and cancellations — all self-service.</p></div>
+        <div class="feat-card"><div class="feat-icon">🏗️</div><h3>Automated Provisioning</h3><p>No manual setup. Your tenant environment, admin account, and default settings are created instantly.</p></div>
+        <div class="feat-card"><div class="feat-icon">🗂️</div><h3>Catalog Management</h3><p>Organize unlimited categories and sub-categories, and manage products with images, pricing, and stock.</p></div>
+        <div class="feat-card"><div class="feat-icon">🧾</div><h3>Order Lifecycle</h3><p>From cart to checkout to delivery — track every order through Pending, Processing, Shipped and Delivered.</p></div>
+        <div class="feat-card"><div class="feat-icon">👥</div><h3>Customer Management</h3><p>View customer profiles, order history and wishlists, right from your Store Admin Dashboard.</p></div>
+        <div class="feat-card"><div class="feat-icon">🖼️</div><h3>Banner Management</h3><p>Upload homepage, category and offer banners to promote sales and seasonal campaigns.</p></div>
+        <div class="feat-card"><div class="feat-icon">📈</div><h3>Sales Reports</h3><p>Built-in sales, order and subscription reports for both store owners and the platform team.</p></div>
+        <div class="feat-card"><div class="feat-icon">🛡️</div><h3>Isolated & Secure</h3><p>Strict tenant data isolation, encrypted credentials, and role-based access across every store.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="background:var(--canvas);">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>See it running in your business</h2>
+        <p>Start a free trial — no credit card required.</p>
+        <button class="btn btn-dark btn-lg" data-page="register">Start Free Trial</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== PRICING ===================== -->
+<div class="page" id="page-pricing">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="kicker">Pricing</div>
+      <h1>Simple, transparent pricing</h1>
+      <p>Every plan includes a 14-day free trial. Switch plans anytime as your store grows.</p>
+      <div class="billing-toggle">
+        <span class="bt-label on" id="bt-monthly-label">Monthly</span>
+        <div class="bt-switch" id="btSwitch" onclick="toggleBilling()"><div class="knob"></div></div>
+        <span class="bt-label" id="bt-yearly-label">Yearly</span>
+        <span class="save-chip">Save 20%</span>
+      </div>
+    </div>
+  </section>
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <div class="pricing-preview-grid" id="pricingFull"></div>
+
+      <table class="compare-table">
+        <thead><tr><th>Compare features</th><th>Starter</th><th>Growth</th><th>Enterprise</th></tr></thead>
+        <tbody>
+          <tr><td>Products</td><td>200</td><td>2,000</td><td>Unlimited</td></tr>
+          <tr><td>Admin users</td><td>1</td><td>5</td><td>Unlimited</td></tr>
+          <tr><td>Custom domain</td><td>—</td><td>1</td><td>Unlimited</td></tr>
+          <tr><td>Banner management</td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><td>Sales & order reports</td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><td>Priority support</td><td>—</td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+          <tr><td>Dedicated account manager</td><td>—</td><td>—</td><td><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-head" style="margin-top:70px;">
+        <div class="kicker">FAQ</div>
+        <h2>Pricing questions, answered</h2>
+      </div>
+      <div style="max-width:680px;margin:0 auto;">
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Can I change plans later? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="faq-a">Yes. Upgrades apply immediately with prorated billing, and downgrades take effect at your next billing cycle.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">What happens after my free trial ends? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="faq-a">You'll be prompted to add billing details to continue. Your store and data are kept safe during the trial period.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Do you support online payment gateways? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="faq-a">Phase 1 supports Cash on Delivery checkout for your customers. Online payment gateways are planned for a future release.</div>
+        </div>
+        <div class="faq-item" onclick="this.classList.toggle('open')">
+          <div class="faq-q">Can I cancel anytime? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="faq-a">Yes, you can cancel from your Store Admin Dashboard at any time — no long-term contracts.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== CONTACT ===================== -->
+<div class="page" id="page-contact">
+  <section class="page-hero">
+    <div class="wrap">
+      <div class="kicker">Contact</div>
+      <h1>We'd love to hear from you</h1>
+      <p>Questions about plans, features, or getting started? Reach out and our team will respond within one business day.</p>
+    </div>
+  </section>
+  <section style="padding-top:20px;">
+    <div class="wrap contact-grid">
+      <div>
+        <div class="contact-info-item">
+          <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg></div>
+          <div><h4>Email us</h4><p>hello@storeforge.io</p></div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.8 2Z"/></svg></div>
+          <div><h4>Call us</h4><p>+1 (555) 010-2938</p></div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+          <div><h4>Head office</h4><p>400 Market Street, Suite 210, San Francisco, CA</p></div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <div><h4>Support hours</h4><p>Mon–Fri, 9am–7pm IST</p></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-field"><label>Full Name</label><input placeholder="Jane Cooper"></div>
+        <div class="form-row2">
+          <div class="form-field"><label>Email</label><input placeholder="jane@business.com"></div>
+          <div class="form-field"><label>Phone</label><input placeholder="+1 555 000 0000"></div>
+        </div>
+        <div class="form-field"><label>Topic</label>
+          <select><option>Sales enquiry</option><option>Technical support</option><option>Billing question</option><option>Partnership</option></select>
+        </div>
+        <div class="form-field"><label>Message</label><textarea placeholder="Tell us a bit about your business…"></textarea></div>
+        <button class="btn btn-flame btn-block" onclick="submitContact()">Send Message</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== REGISTER (WIZARD) ===================== -->
+<div class="page" id="page-register">
+  <section style="padding:56px 0 90px;">
+    <div class="wrap wizard-wrap">
+      <div class="wizard-steps" id="wizardSteps"></div>
+
+      <!-- STEP 1: ACCOUNT -->
+      <div class="wizard-panel wpage active" id="wpage-1">
+        <h3>Create your account</h3>
+        <div class="sub">Let's start with a few details about you and your business.</div>
+        <div class="form-field"><label>Business Name</label><input id="reg-business" placeholder="e.g. Aura Living"></div>
+        <div class="form-row2">
+          <div class="form-field"><label>Your Name</label><input id="reg-name" placeholder="Jane Cooper"></div>
+          <div class="form-field"><label>Email</label><input id="reg-email" placeholder="jane@business.com"></div>
+        </div>
+        <div class="form-field"><label>Password</label><input type="password" placeholder="Create a password"></div>
+        <div class="wizard-foot">
+          <span></span>
+          <button class="btn btn-flame" onclick="wizardNext(1)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: PLAN -->
+      <div class="wizard-panel wpage" id="wpage-2">
+        <h3>Choose your plan</h3>
+        <div class="sub">You can upgrade, downgrade or cancel anytime from your dashboard.</div>
+        <div id="wizardPlans"></div>
+        <label class="trial-box">
+          <input type="checkbox" id="reg-trial" checked onchange="toggleTrialUI()">
+          Start with a 14-day free trial — no payment required today
+        </label>
+        <div class="wizard-foot">
+          <button class="btn btn-ghost" onclick="wizardBack(2)">Back</button>
+          <button class="btn btn-flame" onclick="wizardNext(2)">Continue</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: BILLING -->
+      <div class="wizard-panel wpage" id="wpage-3">
+        <h3 id="billing-title">Billing details</h3>
+        <div class="sub" id="billing-sub">Your card will only be charged after your free trial ends.</div>
+        <div class="form-field"><label>Name on Card</label><input placeholder="Jane Cooper"></div>
+        <div class="form-field"><label>Card Number</label><input placeholder="4242 4242 4242 4242"></div>
+        <div class="form-row2">
+          <div class="form-field"><label>Expiry</label><input placeholder="MM/YY"></div>
+          <div class="form-field"><label>CVV</label><input placeholder="123"></div>
+        </div>
+        <div class="wizard-foot">
+          <button class="btn btn-ghost" onclick="wizardBack(3)">Back</button>
+          <button class="btn btn-flame" onclick="wizardNext(3)">Complete Registration</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: PROVISIONING / CONFIRMATION -->
+      <div class="wizard-panel wpage" id="wpage-4">
+        <h3>Setting up your store…</h3>
+        <div class="sub">This usually takes just a few seconds.</div>
+        <div id="provisionChecklist">
+          <div class="progress-check" data-i="0"><div class="pc-dot"></div>Creating your isolated tenant environment</div>
+          <div class="progress-check" data-i="1"><div class="pc-dot"></div>Initializing default catalog structure</div>
+          <div class="progress-check" data-i="2"><div class="pc-dot"></div>Generating your Store Admin account</div>
+          <div class="progress-check" data-i="3"><div class="pc-dot"></div>Publishing your storefront</div>
+        </div>
+        <div id="provisionDone" style="display:none;">
+          <h3 style="margin-top:6px;">🎉 Your store is live!</h3>
+          <p class="sub" style="margin-bottom:6px;">Save these details — you'll need them to log in to your Store Admin Dashboard.</p>
+          <div class="credential-box">
+            <div class="credential-row"><span>Store URL</span><code id="cred-url">—</code></div>
+            <div class="credential-row"><span>Admin Login</span><code id="cred-email">—</code></div>
+            <div class="credential-row"><span>Temporary Password</span><code id="cred-pass">—</code></div>
+          </div>
+          <div class="wizard-foot" style="margin-top:22px;">
+            <button class="btn btn-ghost" data-page="home">Back to Home</button>
+            <button class="btn btn-flame" onclick="showToast('Opening your Store Admin Dashboard…')">Go to Store Admin Dashboard →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<div class="page" id="page-login">
+  <section style="padding:70px 0 100px;">
+    <div class="wrap login-wrap">
+      <div class="login-card">
+        <div class="login-tabs">
+          <div class="login-tab active" id="lt-store" onclick="setLoginTab('store')">Store Owner</div>
+          <div class="login-tab" id="lt-super" onclick="setLoginTab('super')">Super Admin</div>
+        </div>
+        <h3 style="margin:0 0 4px;font-size:19px;">Welcome back</h3>
+        <p style="color:var(--muted);font-size:13.3px;margin:0 0 22px;" id="login-sub">Log in to manage your store.</p>
+        <div class="form-field"><label>Email</label><input placeholder="you@business.com"></div>
+        <div class="form-field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+        <div class="login-links"><a>Forgot password?</a><span></span></div>
+        <button class="btn btn-flame btn-block" onclick="showToast('Logging in… (mockup)')">Log In</button>
+        <div class="login-foot">New to StoreForge? <a data-page="register">Start your free trial</a></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo" style="color:#fff;margin-bottom:12px;"><div class="logo-mark">SF</div>StoreForge</div>
+        <p style="max-width:260px;color:#8792A6;">The multi-tenant eCommerce platform that gets your store live in minutes.</p>
+      </div>
+      <div><h4>Product</h4><a data-page="features">Features</a><a data-page="pricing">Pricing</a><a data-page="register">Start Free Trial</a></div>
+      <div><h4>Company</h4><a data-page="contact">Contact</a><a>About</a><a>Careers</a></div>
+      <div><h4>Account</h4><a data-page="login">Log In</a><a data-page="register">Register</a><a>Support</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 StoreForge. All rights reserved.</span>
+      <span>Privacy Policy · Terms of Service</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+const PLANS = [
+  { name:'Starter', desc:'For new stores getting started', monthly:19, yearly:190, feats:['200 products','1 admin user','Subdomain store URL','Email support'], featured:false },
+  { name:'Growth', desc:'For growing stores that need more', monthly:49, yearly:490, feats:['2,000 products','5 admin users','1 custom domain','Priority support + chat'], featured:true },
+  { name:'Enterprise', desc:'For high-volume stores', monthly:129, yearly:1290, feats:['Unlimited products','Unlimited admin users','Unlimited custom domains','Dedicated account manager'], featured:false },
+];
+let billingYearly = false;
+let selectedPlan = 'Growth';
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function setPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active', l.dataset.page===page));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-page]').forEach(el=>{
+  el.addEventListener('click', ()=> setPage(el.dataset.page));
+});
+
+/* ============================================================
+   TOAST
+============================================================ */
+function showToast(msg){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className='toast';
+  t.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><span>'+msg+'</span>';
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2800);
+}
+function submitContact(){ showToast("Message sent — we'll be in touch within one business day"); }
+
+/* ============================================================
+   PRICING CARDS (shared render for home preview + pricing page)
+============================================================ */
+function planCardHtml(p, small){
+  const price = billingYearly ? p.yearly : p.monthly;
+  const period = billingYearly ? '/ year' : '/ month';
+  return `<div class="plan-card ${p.featured?'featured':''}">
+    ${p.featured?'<div class="plan-badge">Most Popular</div>':''}
+    <div class="plan-name">${p.name}</div>
+    <div class="plan-desc">${p.desc}</div>
+    <div class="plan-price">$${price}<span> ${period}</span></div>
+    <ul class="plan-feat">${p.feats.map(f=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>${f}</li>`).join('')}</ul>
+    <button class="btn ${p.featured?'btn-flame':'btn-ghost'} btn-block" onclick="choosePlanAndRegister('${p.name}')">Get Started</button>
+  </div>`;
+}
+function renderPricingBlocks(){
+  document.getElementById('pricingPreview').innerHTML = PLANS.map(p=>planCardHtml(p)).join('');
+  document.getElementById('pricingFull').innerHTML = PLANS.map(p=>planCardHtml(p)).join('');
+}
+function toggleBilling(){
+  billingYearly = !billingYearly;
+  document.getElementById('btSwitch').classList.toggle('yearly', billingYearly);
+  document.getElementById('bt-monthly-label').classList.toggle('on', !billingYearly);
+  document.getElementById('bt-yearly-label').classList.toggle('on', billingYearly);
+  renderPricingBlocks();
+  renderWizardPlans();
+}
+function choosePlanAndRegister(name){
+  selectedPlan = name;
+  setPage('register');
+  renderWizardPlans();
+  showToast(name+' plan selected');
+}
+
+/* ============================================================
+   REGISTER WIZARD
+============================================================ */
+const wizardLabels = ['Account','Plan','Billing','Confirmation'];
+function renderWizardSteps(current){
+  document.getElementById('wizardSteps').innerHTML = wizardLabels.map((label,i)=>{
+    const step = i+1;
+    const cls = step<current?'done':step===current?'now':'';
+    return `<div class="wstep ${cls}"><div class="wstep-dot">${step<current?'✓':step}</div><span>${label}</span></div>`;
+  }).join('');
+}
+function goToWizardPage(n){
+  document.querySelectorAll('.wpage').forEach(p=>p.classList.remove('active'));
+  document.getElementById('wpage-'+n).classList.add('active');
+  renderWizardSteps(n);
+}
+function wizardNext(current){
+  if(current===2 && document.getElementById('reg-trial').checked){
+    goToWizardPage(4);
+    runProvisioning();
+    return;
+  }
+  goToWizardPage(current+1);
+  if(current+1===4) runProvisioning();
+}
+function wizardBack(current){ goToWizardPage(current-1); }
+
+function renderWizardPlans(){
+  document.getElementById('wizardPlans').innerHTML = PLANS.map(p=>{
+    const price = billingYearly? p.yearly : p.monthly;
+    const period = billingYearly? '/yr' : '/mo';
+    const sel = p.name===selectedPlan;
+    return `<label class="mini-plan ${sel?'sel':''}" onclick="selectWizardPlan('${p.name}')">
+      <input type="radio" name="wplan" ${sel?'checked':''}>
+      <div><div class="mp-name">${p.name}</div><div class="mp-desc">${p.desc}</div></div>
+      <div class="mp-price">$${price}${period}</div>
+    </label>`;
+  }).join('');
+}
+function selectWizardPlan(name){ selectedPlan = name; renderWizardPlans(); }
+function toggleTrialUI(){
+  const trial = document.getElementById('reg-trial').checked;
+  document.getElementById('billing-title').textContent = trial? 'Billing details (optional during trial)' : 'Billing details';
+  document.getElementById('billing-sub').textContent = trial? 'You can add this later — your trial starts immediately without a card.' : 'Your card will be charged for the '+selectedPlan+' plan today.';
+}
+
+function runProvisioning(){
+  document.getElementById('provisionDone').style.display='none';
+  document.querySelectorAll('.progress-check').forEach(el=>el.classList.remove('done','active'));
+  const business = document.getElementById('reg-business').value.trim() || 'Your Business';
+  const email = document.getElementById('reg-email').value.trim() || 'owner@yourbusiness.com';
+  const slug = business.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,20) || 'yourstore';
+  const steps = document.querySelectorAll('.progress-check');
+  let i=0;
+  function step(){
+    if(i>0) steps[i-1].classList.remove('active'); 
+    if(i>=steps.length){
+      document.getElementById('cred-url').textContent = slug+'.storeforge.io';
+      document.getElementById('cred-email').textContent = email;
+      document.getElementById('cred-pass').textContent = 'Tmp#'+Math.random().toString(36).slice(2,8);
+      document.getElementById('provisionDone').style.display='block';
+      showToast(business+' is live on StoreForge 🎉');
+      return;
+    }
+    steps[i].classList.add('active');
+    setTimeout(()=>{ steps[i].classList.remove('active'); steps[i].classList.add('done'); i++; step(); }, 550);
+  }
+  step();
+}
+
+/* ============================================================
+   LOGIN TABS
+============================================================ */
+function setLoginTab(which){
+  document.getElementById('lt-store').classList.toggle('active', which==='store');
+  document.getElementById('lt-super').classList.toggle('active', which==='super');
+  document.getElementById('login-sub').textContent = which==='store' ? 'Log in to manage your store.' : 'Log in to the platform Super Admin console.';
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+renderPricingBlocks();
+renderWizardSteps(1);
+renderWizardPlans();
+</script>
+</body>
+</html>
