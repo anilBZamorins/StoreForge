@@ -1,17 +1,84 @@
-<h1>Categories</h1>
-<p class="sub">Organize categories and sub-categories</p>
+<div class="toolbar">
+  <span class="spacer"></span>
+  <button class="btn btn-ghost" (click)="openAddSub()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+    Add Sub-category
+  </button>
+  <button class="btn btn-flame" (click)="openAddCategory()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>
+    Add Category
+  </button>
+</div>
 
 <div class="tcard tree">
   @for (c of categories(); track c.id) {
     <div class="parent" (click)="toggle(c.id)">
-      <span class="chev" [class.open]="isOpen(c.id)">▸</span>
-      {{ c.name }}
+      <span class="chev" [class.open]="isOpen(c.id)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg>
+      </span>
+      <span class="pname">{{ c.name }}</span>
       <span class="count">{{ totalProducts(c) }} products</span>
+      <span class="row-actions">
+        <button class="icon-mini" title="Edit category" (click)="openEditCategory(c, $event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+        </button>
+        <button class="icon-mini" title="Delete category" (click)="deleteCategory(c, $event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </span>
     </div>
     @if (isOpen(c.id)) {
       @for (s of c.subs; track s.id) {
-        <div class="child"><span>{{ s.name }}</span><span class="count">{{ s.count }} products</span></div>
+        <div class="child">
+          <span>{{ s.name }}</span>
+          <span class="child-right">
+            <span class="count">{{ s.count }} products</span>
+            <span class="row-actions">
+              <button class="icon-mini" title="Edit sub-category" (click)="openEditSub(c, s.id, s.name, $event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </button>
+              <button class="icon-mini" title="Delete sub-category" (click)="deleteSub(c, s.id, $event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </button>
+            </span>
+          </span>
+        </div>
+      }
+      @if (!c.subs.length) {
+        <div class="child none">No sub-categories yet</div>
       }
     }
   }
 </div>
+
+<!-- ============ ADD / EDIT MODAL ============ -->
+@if (modalMode()) {
+  <div class="overlay" (click)="close()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ modalTitle() }}</h3>
+        <button class="modal-close" (click)="close()">✕</button>
+      </div>
+      <div class="modal-body">
+        @if (isSubMode()) {
+          <label>Parent Category
+            <select [ngModel]="form().parentId" (ngModelChange)="patch('parentId', $event)" [disabled]="modalMode() === 'edit-sub'">
+              @for (c of categories(); track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+            </select>
+          </label>
+        }
+        <label>Name
+          <input [ngModel]="form().name" (ngModelChange)="patch('name', $event)">
+        </label>
+        <label>Description
+          <textarea [ngModel]="form().description" (ngModelChange)="patch('description', $event)"
+            placeholder="Optional short description shown on category page"></textarea>
+        </label>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" (click)="close()">Cancel</button>
+        <button class="btn btn-dark" (click)="save()">Save</button>
+      </div>
+    </div>
+  </div>
+}
