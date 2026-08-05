@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreForge — Color &amp; Design Token Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F172A; --flame:#FF5A36; --flame-dim:#FFE3DA;
+    --canvas:#F7F8FB; --surface:#FFFFFF; --text:#101828;
+    --muted:#667085; --border:#E4E7EC;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--text);}
+  h1,h2,h3{font-family:'Sora',system-ui,sans-serif;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px 80px;}
+  header.hero{background:linear-gradient(135deg,#0F172A,#16213e);color:#fff;padding:52px 0 44px;margin-bottom:40px;}
+  header.hero .wrap{padding-bottom:0;}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:800;font-size:19px;margin-bottom:18px;}
+  .logo-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#FF5A36,#ff8a5c);display:flex;align-items:center;justify-content:center;font-size:15px;}
+  h1{font-size:34px;margin:0 0 10px;letter-spacing:-.4px;}
+  .hero p{color:#B9C2D6;font-size:14.5px;max-width:640px;line-height:1.65;margin:0;}
+  .hero .tag{display:inline-block;margin-top:18px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:rgba(255,90,54,0.22);color:#ffcfc0;padding:4px 12px;border-radius:20px;}
+
+  section{margin-bottom:46px;}
+  .sec-kicker{color:var(--flame);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+  h2{font-size:23px;margin:0 0 6px;letter-spacing:-.2px;}
+  .sec-sub{color:var(--muted);font-size:13.8px;line-height:1.6;margin:0 0 20px;max-width:720px;}
+  h3{font-size:15px;margin:26px 0 12px;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+  .sw{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .12s, box-shadow .12s;}
+  .sw:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,0.09);}
+  .sw-chip{height:74px;display:flex;align-items:flex-end;padding:10px 12px;}
+  .sw-chip.bordered{border-bottom:1px solid var(--border);}
+  .sw-hex{font-family:monospace;font-size:11.5px;font-weight:700;background:rgba(255,255,255,0.85);color:#101828;padding:2px 8px;border-radius:6px;}
+  .sw-hex.dark{background:rgba(15,23,42,0.55);color:#fff;}
+  .sw-body{padding:11px 13px 13px;}
+  .sw-name{font-weight:700;font-size:13px;margin-bottom:2px;}
+  .sw-token{font-family:monospace;font-size:11px;color:var(--flame);margin-bottom:5px;}
+  .sw-use{font-size:11.8px;color:var(--muted);line-height:1.5;}
+
+  .pair-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+  .badge-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px;}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:10px;}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-meta{font-family:monospace;font-size:11px;color:var(--muted);line-height:1.7;}
+  .badge-meta b{color:var(--text);font-family:'Inter',sans-serif;font-size:11.5px;}
+
+  .grad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+  .grad-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .12s, box-shadow .12s;}
+  .grad-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,0.10);}
+  .grad-preview{height:120px;display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px;}
+  .grad-stop{font-family:monospace;font-size:11px;font-weight:700;background:rgba(255,255,255,0.88);color:#101828;padding:2px 8px;border-radius:6px;}
+  .grad-stop.dark{background:rgba(15,23,42,0.55);color:#fff;}
+  .grad-body{padding:12px 15px 14px;}
+  .grad-name{font-weight:700;font-size:13.5px;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;}
+  .grad-name .deg{font-size:10.5px;font-weight:700;color:var(--flame);background:var(--flame-dim);padding:2px 8px;border-radius:20px;}
+  .grad-css{font-family:monospace;font-size:10.8px;color:var(--muted);background:var(--canvas);border:1px solid var(--border);border-radius:7px;padding:7px 9px;margin:7px 0;line-height:1.5;word-break:break-all;}
+  .grad-use{font-size:11.8px;color:var(--muted);line-height:1.5;}
+  .grad-hint{font-size:11px;color:var(--flame);font-weight:600;margin-top:7px;}
+
+  .strip{display:flex;gap:10px;margin:12px 0 6px;}
+  .strip i{width:34px;height:34px;border-radius:50%;display:block;border:1px solid var(--border);}
+
+  .note{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--flame);border-radius:10px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.65;}
+  .note b{color:var(--text);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:10px 14px;background:#FAFBFD;border-bottom:1px solid var(--border);}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  td code{font-family:monospace;font-size:12px;background:var(--canvas);border:1px solid var(--border);padding:2px 7px;border-radius:5px;}
+  .dotchip{display:inline-block;width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,0.12);vertical-align:-2px;margin-right:7px;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:#0F172A;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;}
+  .toast.show{opacity:1;}
+  footer{color:var(--muted);font-size:12px;border-top:1px solid var(--border);padding-top:18px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="logo"><div class="logo-mark">SF</div>StoreForge</div>
+    <h1>Color &amp; Design Token Guide</h1>
+    <p>The complete color system used across the three Phase-1 mockups: the StoreForge marketing website, the Store Admin Dashboard, and the Aura Living demo storefront. Click any swatch to copy its hex code.</p>
+    <span class="tag">v1.0 · extracted from mockups · Aug 2026</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ BRAND CORE ============ -->
+  <section>
+    <div class="sec-kicker">01 · Brand Core</div>
+    <h2>Platform palette (Website + Admin Dashboard)</h2>
+    <p class="sec-sub">The StoreForge brand identity. "Flame" is the primary action color, "Ink" anchors dark surfaces (sidebar, footer, testimonial band), and a neutral gray ramp handles text, borders and backgrounds.</p>
+    <div class="grid">
+      <div class="sw" data-hex="#FF5A36"><div class="sw-chip" style="background:#FF5A36;"><span class="sw-hex">#FF5A36</span></div><div class="sw-body"><div class="sw-name">Flame</div><div class="sw-token">--flame</div><div class="sw-use">Primary brand &amp; CTA color — buttons, links, active states, logo.</div></div></div>
+      <div class="sw" data-hex="#FFE3DA"><div class="sw-chip bordered" style="background:#FFE3DA;"><span class="sw-hex">#FFE3DA</span></div><div class="sw-body"><div class="sw-name">Flame Dim</div><div class="sw-token">--flame-dim</div><div class="sw-use">Tint for icon chips, selected cards, featured-plan glow, save chips.</div></div></div>
+      <div class="sw" data-hex="#0F172A"><div class="sw-chip" style="background:#0F172A;"><span class="sw-hex dark">#0F172A</span></div><div class="sw-body"><div class="sw-name">Ink</div><div class="sw-token">--ink</div><div class="sw-use">Dark surfaces — admin sidebar, site footer, dark buttons, testimonial band.</div></div></div>
+      <div class="sw" data-hex="#16213E"><div class="sw-chip" style="background:#16213E;"><span class="sw-hex dark">#16213E</span></div><div class="sw-body"><div class="sw-name">Ink 2</div><div class="sw-token">--ink-2</div><div class="sw-use">Ink gradient partner &amp; dark-button hover state.</div></div></div>
+      <div class="sw" data-hex="#2F80ED"><div class="sw-chip" style="background:#2F80ED;"><span class="sw-hex dark">#2F80ED</span></div><div class="sw-body"><div class="sw-name">Sky / Info</div><div class="sw-token">--sky · --info</div><div class="sw-use">Informational accents and "view all" link buttons.</div></div></div>
+      <div class="sw" data-hex="#1F9D55"><div class="sw-chip" style="background:#1F9D55;"><span class="sw-hex dark">#1F9D55</span></div><div class="sw-body"><div class="sw-name">Success</div><div class="sw-token">--success</div><div class="sw-use">Checkmarks, positive deltas, delivered/paid/active badges.</div></div></div>
+      <div class="sw" data-hex="#D64545"><div class="sw-chip" style="background:#D64545;"><span class="sw-hex dark">#D64545</span></div><div class="sw-body"><div class="sw-name">Danger</div><div class="sw-token">--danger</div><div class="sw-use">Destructive actions, negative deltas, notification dot.</div></div></div>
+      <div class="sw" data-hex="#B4790C"><div class="sw-chip" style="background:#B4790C;"><span class="sw-hex dark">#B4790C</span></div><div class="sw-body"><div class="sw-name">Warn</div><div class="sw-token">--warn</div><div class="sw-use">Warnings — pending &amp; low-stock states.</div></div></div>
+    </div>
+
+    <h3>Neutrals &amp; surfaces</h3>
+    <div class="grid">
+      <div class="sw" data-hex="#101828"><div class="sw-chip" style="background:#101828;"><span class="sw-hex dark">#101828</span></div><div class="sw-body"><div class="sw-name">Text</div><div class="sw-token">--text</div><div class="sw-use">Primary body &amp; heading text.</div></div></div>
+      <div class="sw" data-hex="#667085"><div class="sw-chip" style="background:#667085;"><span class="sw-hex dark">#667085</span></div><div class="sw-body"><div class="sw-name">Muted</div><div class="sw-token">--muted</div><div class="sw-use">Secondary text, labels, captions, placeholder copy.</div></div></div>
+      <div class="sw" data-hex="#E4E7EC"><div class="sw-chip bordered" style="background:#E4E7EC;"><span class="sw-hex">#E4E7EC</span></div><div class="sw-body"><div class="sw-name">Border</div><div class="sw-token">--border</div><div class="sw-use">Card borders, dividers, table rules, input outlines.</div></div></div>
+      <div class="sw" data-hex="#F7F8FB"><div class="sw-chip bordered" style="background:#F7F8FB;"><span class="sw-hex">#F7F8FB</span></div><div class="sw-body"><div class="sw-name">Canvas (Website)</div><div class="sw-token">--canvas</div><div class="sw-use">Page background &amp; alternating section bands on the marketing site.</div></div></div>
+      <div class="sw" data-hex="#F5F6FA"><div class="sw-chip bordered" style="background:#F5F6FA;"><span class="sw-hex">#F5F6FA</span></div><div class="sw-body"><div class="sw-name">Canvas (Admin)</div><div class="sw-token">--canvas</div><div class="sw-use">Admin dashboard content background.</div></div></div>
+      <div class="sw" data-hex="#FFFFFF"><div class="sw-chip bordered" style="background:#FFFFFF;"><span class="sw-hex">#FFFFFF</span></div><div class="sw-body"><div class="sw-name">Surface</div><div class="sw-token">--surface</div><div class="sw-use">Cards, modals, tables, top bars.</div></div></div>
+      <div class="sw" data-hex="#FF9D7D"><div class="sw-chip" style="background:#FF9D7D;"><span class="sw-hex">#FF9D7D</span></div><div class="sw-body"><div class="sw-name">Flame Soft</div><div class="sw-token">(accent)</div><div class="sw-use">Active nav icons &amp; avatar text on Ink backgrounds.</div></div></div>
+      <div class="sw" data-hex="#FFB199"><div class="sw-chip" style="background:#FFB199;"><span class="sw-hex">#FFB199</span></div><div class="sw-body"><div class="sw-name">Flame Pale</div><div class="sw-token">(accent)</div><div class="sw-use">Highlighted text in dark announcement bars &amp; toasts.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ============ STOREFRONT THEME ============ -->
+  <section>
+    <div class="sec-kicker">02 · Tenant Theme</div>
+    <h2>Aura Living storefront palette</h2>
+    <p class="sec-sub">The demo tenant re-themes the neutrals to a warm, earthy register while keeping Flame as the shared action color — showing how a tenant store can carry its own identity on top of the platform system.</p>
+    <div class="grid">
+      <div class="sw" data-hex="#20201C"><div class="sw-chip" style="background:#20201C;"><span class="sw-hex dark">#20201C</span></div><div class="sw-body"><div class="sw-name">Ink (warm)</div><div class="sw-token">--ink</div><div class="sw-use">Headings, dark buttons, newsletter &amp; announcement bars.</div></div></div>
+      <div class="sw" data-hex="#6B6558"><div class="sw-chip" style="background:#6B6558;"><span class="sw-hex dark">#6B6558</span></div><div class="sw-body"><div class="sw-name">Muted (warm)</div><div class="sw-token">--muted</div><div class="sw-use">Secondary text with a warm gray-brown cast.</div></div></div>
+      <div class="sw" data-hex="#FBF9F5"><div class="sw-chip bordered" style="background:#FBF9F5;"><span class="sw-hex">#FBF9F5</span></div><div class="sw-body"><div class="sw-name">Paper</div><div class="sw-token">--paper</div><div class="sw-use">Soft cream section bands, footer, inputs, summary cards.</div></div></div>
+      <div class="sw" data-hex="#E8E3DB"><div class="sw-chip bordered" style="background:#E8E3DB;"><span class="sw-hex">#E8E3DB</span></div><div class="sw-body"><div class="sw-name">Border (warm)</div><div class="sw-token">--border</div><div class="sw-use">Warm-toned card borders and dividers.</div></div></div>
+      <div class="sw" data-hex="#7C9473"><div class="sw-chip" style="background:#7C9473;"><span class="sw-hex dark">#7C9473</span></div><div class="sw-body"><div class="sw-name">Sage</div><div class="sw-token">--sage</div><div class="sw-use">Secondary accent — promo icons, product meta icons.</div></div></div>
+      <div class="sw" data-hex="#E7EEE3"><div class="sw-chip bordered" style="background:#E7EEE3;"><span class="sw-hex">#E7EEE3</span></div><div class="sw-body"><div class="sw-name">Sage Dim</div><div class="sw-token">--sage-dim</div><div class="sw-use">Sage tint for icon chips &amp; the order-confirmed check.</div></div></div>
+      <div class="sw" data-hex="#FFE6DB"><div class="sw-chip bordered" style="background:#FFE6DB;"><span class="sw-hex">#FFE6DB</span></div><div class="sw-body"><div class="sw-name">Flame Dim (warm)</div><div class="sw-token">--flame-dim</div><div class="sw-use">Slightly warmer flame tint used on the storefront.</div></div></div>
+      <div class="sw" data-hex="#3F8F5F"><div class="sw-chip" style="background:#3F8F5F;"><span class="sw-hex dark">#3F8F5F</span></div><div class="sw-body"><div class="sw-name">Success (warm)</div><div class="sw-token">--success</div><div class="sw-use">Completed tracking steps.</div></div></div>
+      <div class="sw" data-hex="#C4453E"><div class="sw-chip" style="background:#C4453E;"><span class="sw-hex dark">#C4453E</span></div><div class="sw-body"><div class="sw-name">Danger (warm)</div><div class="sw-token">--danger</div><div class="sw-use">Stock warnings &amp; remove-from-cart links.</div></div></div>
+      <div class="sw" data-hex="#F2B233"><div class="sw-chip" style="background:#F2B233;"><span class="sw-hex">#F2B233</span></div><div class="sw-body"><div class="sw-name">Star</div><div class="sw-token">(accent)</div><div class="sw-use">Product rating stars.</div></div></div>
+    </div>
+
+    <h3>Signature swatch strip (brand mark)</h3>
+    <div class="strip">
+      <i style="background:#D9C7A8" title="#D9C7A8"></i>
+      <i style="background:#B5673B" title="#B5673B"></i>
+      <i style="background:#7C9473" title="#7C9473"></i>
+      <i style="background:#8A6A4E" title="#8A6A4E"></i>
+      <i style="background:#C9C2B4" title="#C9C2B4"></i>
+    </div>
+    <p class="sec-sub" style="margin-top:4px;"><code style="font-family:monospace;font-size:12px;">#D9C7A8 · #B5673B · #7C9473 · #8A6A4E · #C9C2B4</code> — the earthy five-dot strip shown in the storefront footer; also the source of category-card gradient colors.</p>
+  </section>
+
+  <!-- ============ STATUS SYSTEM ============ -->
+  <section>
+    <div class="sec-kicker">03 · Status System</div>
+    <h2>Badge colors (shared across Admin &amp; Storefront)</h2>
+    <p class="sec-sub">Every badge is a tinted background + matching deep text color, with a small dot in <code style="font-family:monospace;">currentColor</code>. These pairs are identical in the admin dashboard and the storefront order tracker, so status reads the same everywhere.</p>
+    <div class="pair-grid">
+      <div class="badge-card"><span class="badge" style="background:#FFF4E0;color:#B4790C;">Pending</span><div class="badge-meta"><b>bg</b> #FFF4E0 &nbsp;·&nbsp; <b>text</b> #B4790C<br>Also: Low Stock, Idle Cart</div></div>
+      <div class="badge-card"><span class="badge" style="background:#E7F0FB;color:#2A6BAE;">Processing</span><div class="badge-meta"><b>bg</b> #E7F0FB &nbsp;·&nbsp; <b>text</b> #2A6BAE<br>Also: Active Cart</div></div>
+      <div class="badge-card"><span class="badge" style="background:#EAE6FB;color:#6C4FCE;">Shipped</span><div class="badge-meta"><b>bg</b> #EAE6FB &nbsp;·&nbsp; <b>text</b> #6C4FCE</div></div>
+      <div class="badge-card"><span class="badge" style="background:#FDEAE0;color:#C15A25;">Out for Delivery</span><div class="badge-meta"><b>bg</b> #FDEAE0 &nbsp;·&nbsp; <b>text</b> #C15A25</div></div>
+      <div class="badge-card"><span class="badge" style="background:#E4F6EA;color:#1F9D55;">Delivered</span><div class="badge-meta"><b>bg</b> #E4F6EA &nbsp;·&nbsp; <b>text</b> #1F9D55<br>Also: Active, Paid</div></div>
+      <div class="badge-card"><span class="badge" style="background:#FBE7E7;color:#C43737;">Cancelled</span><div class="badge-meta"><b>bg</b> #FBE7E7 &nbsp;·&nbsp; <b>text</b> #C43737<br>Also: Out of Stock, Failed, Abandoned Cart</div></div>
+      <div class="badge-card"><span class="badge" style="background:#EEF0F3;color:#6B7280;">Inactive</span><div class="badge-meta"><b>bg</b> #EEF0F3 &nbsp;·&nbsp; <b>text</b> #6B7280</div></div>
+    </div>
+  </section>
+
+  <!-- ============ GRADIENTS ============ -->
+  <section>
+    <div class="sec-kicker">04 · Gradients</div>
+    <h2>Gradient recipes</h2>
+    <p class="sec-sub">Every gradient used across the three mockups, with its exact CSS. Click any card to copy the full <code style="font-family:monospace;font-size:12px;">background</code> rule to your clipboard.</p>
+
+    <h3>Brand gradients (Website + Admin)</h3>
+    <div class="grad-grid">
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#FF5A36,#FF8A5C);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#FF5A36,#FF8A5C);"><span class="grad-stop">#FF5A36</span><span class="grad-stop">#FF8A5C</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Flame <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#FF5A36,#FF8A5C);</div>
+          <div class="grad-use">The signature brand gradient — logo mark, CTA band on the marketing site, storefront logo.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(180deg,#0F172A,#16213E);">
+        <div class="grad-preview" style="background:linear-gradient(180deg,#0F172A,#16213E);"><span class="grad-stop dark">#0F172A</span><span class="grad-stop dark">#16213E</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Ink — vertical <span class="deg">180°</span></div>
+          <div class="grad-css">background:linear-gradient(180deg,#0F172A,#16213E);</div>
+          <div class="grad-use">Admin dashboard sidebar — a subtle top-to-bottom deepening of the Ink navy.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#0F172A,#16213E);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#0F172A,#16213E);"><span class="grad-stop dark">#0F172A</span><span class="grad-stop dark">#16213E</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Ink — diagonal <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#0F172A,#16213E);</div>
+          <div class="grad-use">The "current plan" hero card on the Billing &amp; Subscription page.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#111827,#374151);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#111827,#374151);"><span class="grad-stop dark">#111827</span><span class="grad-stop dark">#374151</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Slate <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#111827,#374151);</div>
+          <div class="grad-use">The mini storefront preview inside the marketing hero's browser mock.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Storefront category-card gradients (Aura Living)</h3>
+    <div class="grad-grid">
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#8A6A4E,#B5673B);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#8A6A4E,#B5673B);"><span class="grad-stop dark">#8A6A4E</span><span class="grad-stop dark">#B5673B</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Home Textiles <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#8A6A4E,#B5673B);</div>
+          <div class="grad-use">Warm walnut-to-terracotta wash for the Textiles category card.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#3B2F6C,#7C9473);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#3B2F6C,#7C9473);"><span class="grad-stop dark">#3B2F6C</span><span class="grad-stop dark">#7C9473</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Decor <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#3B2F6C,#7C9473);</div>
+          <div class="grad-use">Deep violet fading into sage for the Decor category card; the violet also powers the "New in Decor" banner (#3B2F6C → #6C4FCE).</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#20201C,#8A6A4E);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#20201C,#8A6A4E);"><span class="grad-stop dark">#20201C</span><span class="grad-stop dark">#8A6A4E</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Furniture <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#20201C,#8A6A4E);</div>
+          <div class="grad-use">Warm ink into walnut for the Furniture category card.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Promo banner gradients (Admin → Banners)</h3>
+    <div class="grad-grid">
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#101828,#2F80ED);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#101828,#2F80ED);"><span class="grad-stop dark">#101828</span><span class="grad-stop dark">#2F80ED</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Homepage banner <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#101828,#2F80ED);</div>
+          <div class="grad-use">"Summer Refresh" homepage banner — ink to sky.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#3B2F6C,#6C4FCE);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#3B2F6C,#6C4FCE);"><span class="grad-stop dark">#3B2F6C</span><span class="grad-stop dark">#6C4FCE</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Category banner <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#3B2F6C,#6C4FCE);</div>
+          <div class="grad-use">"New in Decor" category banner — deep violet into bright violet.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#B4790C,#FF5A36);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#B4790C,#FF5A36);"><span class="grad-stop dark">#B4790C</span><span class="grad-stop dark">#FF5A36</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Offer banner <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#B4790C,#FF5A36);</div>
+          <div class="grad-use">"Free Shipping" offer banner — amber warming into flame.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Radial hero wash (Marketing site)</h3>
+    <div class="grad-grid">
+      <div class="grad-card" data-css="background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%), radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);">
+        <div class="grad-preview bordered" style="background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%), radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);border-bottom:1px solid var(--border);"><span class="grad-stop">#FFF1EC</span><span class="grad-stop">#EAF1FF</span></div>
+        <div class="grad-body">
+          <div class="grad-name">Hero wash <span class="deg">radial ×2</span></div>
+          <div class="grad-css">background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%),<br>radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);</div>
+          <div class="grad-use">Layered soft washes behind the marketing hero — a peach glow (top-left) over a cool blue haze (bottom-right) on the canvas gray.</div>
+          <div class="grad-hint">Click to copy CSS</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:18px;">
+      <b>Gradient conventions:</b> diagonal gradients always run at <b>135°</b> (top-left → bottom-right); the only vertical (180°) gradient is the admin sidebar. Two-stop gradients only — the darker stop leads, the lighter stop closes. When creating new banner gradients, pick the leading stop from the neutrals/semantic palette and close with Flame <code style="font-family:monospace;">#FF5A36</code> or a brighter tint of the leading hue.
+    </div>
+  </section>
+
+  <!-- ============ TENANT THEME OPTIONS ============ -->
+  <section>
+    <div class="sec-kicker">05 · Tenant Theming</div>
+    <h2>Store theme color options (Admin → Settings)</h2>
+    <p class="sec-sub">The five preset theme colors a store owner can pick for their storefront:</p>
+    <div class="strip">
+      <i style="background:#FF5A36" title="#FF5A36"></i>
+      <i style="background:#2F80ED" title="#2F80ED"></i>
+      <i style="background:#1F9D55" title="#1F9D55"></i>
+      <i style="background:#D64545" title="#D64545"></i>
+      <i style="background:#6C4FCE" title="#6C4FCE"></i>
+    </div>
+    <table style="margin-top:14px;">
+      <thead><tr><th>Swatch</th><th>Hex</th><th>Name</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dotchip" style="background:#FF5A36"></span>Flame</td><td><code>#FF5A36</code></td><td>Default — matches platform brand</td></tr>
+        <tr><td><span class="dotchip" style="background:#2F80ED"></span>Sky</td><td><code>#2F80ED</code></td><td>Cool blue</td></tr>
+        <tr><td><span class="dotchip" style="background:#1F9D55"></span>Forest</td><td><code>#1F9D55</code></td><td>Green</td></tr>
+        <tr><td><span class="dotchip" style="background:#D64545"></span>Crimson</td><td><code>#D64545</code></td><td>Red</td></tr>
+        <tr><td><span class="dotchip" style="background:#6C4FCE"></span>Violet</td><td><code>#6C4FCE</code></td><td>Purple</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ TYPE & SHAPE ============ -->
+  <section>
+    <div class="sec-kicker">06 · Supporting Tokens</div>
+    <h2>Typography &amp; shape</h2>
+    <table>
+      <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>Display font</td><td><code>'Sora', system-ui, sans-serif</code></td><td>Headings, prices, KPIs, buttons with weight 700–800</td></tr>
+        <tr><td>Body font</td><td><code>'Inter', system-ui, sans-serif</code></td><td>Body copy, UI labels, forms (400–700)</td></tr>
+        <tr><td>Radius — base</td><td><code>12px – 14px</code></td><td><code>--radius</code>: cards, inputs, buttons</td></tr>
+        <tr><td>Radius — large</td><td><code>16px – 20px</code></td><td>Modals, hero panels, plan cards, banner bands</td></tr>
+        <tr><td>Radius — pill</td><td><code>20px</code></td><td>Badges, chips, toggles</td></tr>
+        <tr><td>Card shadow (hover)</td><td><code>0 14px 30px rgba(32,32,28,0.08)</code></td><td>Storefront product cards</td></tr>
+        <tr><td>Elevated shadow</td><td><code>0 20–24px 60px rgba(15,23,42,0.25)</code></td><td>Modals, hero browser mock</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note" style="margin-top:20px;">
+      <b>Rule of thumb:</b> Flame <code style="font-family:monospace;">#FF5A36</code> is the single shared action color across all three surfaces. Platform surfaces (website, admin) use the cool slate neutral ramp (<code style="font-family:monospace;">#0F172A → #F7F8FB</code>); tenant storefronts may swap in their own warm/branded neutral ramp (like Aura Living's <code style="font-family:monospace;">#20201C → #FBF9F5</code>) and accent, but status badge pairs and semantic colors stay consistent everywhere.
+    </div>
+  </section>
+
+  <footer>StoreForge · Color &amp; Design Token Guide · generated from <code>Documents/Mockup/*.html</code> · August 2026</footer>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+<script>
+  function copyWithToast(text, label){
+    navigator.clipboard && navigator.clipboard.writeText(text);
+    const t = document.getElementById('toast');
+    t.textContent = label + ' copied';
+    t.classList.add('show');
+    clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1400);
+  }
+  document.querySelectorAll('[data-hex]').forEach(el=>{
+    el.addEventListener('click', ()=>copyWithToast(el.dataset.hex, el.dataset.hex));
+  });
+  document.querySelectorAll('[data-css]').forEach(el=>{
+    el.addEventListener('click', ()=>copyWithToast(el.dataset.css, 'Gradient CSS'));
+  });
+</script>
+</body>
+</html>
