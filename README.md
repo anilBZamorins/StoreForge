@@ -2,65 +2,51 @@
 
 Multi-tenant eCommerce SaaS platform — launch a fully branded online store in minutes.
 
-**Stack:** Laravel (PHP 8.3) · MySQL · Nginx · DigitalOcean
+**Stack:** Angular (frontend) · Laravel REST API (backend) · MySQL · Nginx · DigitalOcean
 
-## Project structure
+## Repository layout
 
 ```
 StoreForge/
-├── app/
-│   ├── Domain/                # Business logic, organized by domain module
-│   │   ├── Tenancy/           #   Tenant provisioning, subdomain resolution, data isolation
-│   │   ├── Billing/           #   Plans, subscriptions, trials, invoices (SUB-* reqs)
-│   │   ├── Catalog/           #   Products, categories, banners (ADM-02..04)
-│   │   ├── Orders/            #   Orders, status lifecycle, carts (ADM-05..06, STF-06..09)
-│   │   ├── Customers/         #   Customer profiles & wishlists
-│   │   └── Reports/           #   Sales / order / top-product reports
-│   └── Http/
-│       ├── Controllers/
-│       │   ├── Website/       # Marketing site: home, pricing, contact, register wizard
-│       │   ├── StoreAdmin/    # Store Admin Dashboard (per tenant)
-│       │   ├── Storefront/    # Customer-facing store (per tenant subdomain)
-│       │   └── SuperAdmin/    # Platform operator console
-│       └── Middleware/        # e.g. IdentifyTenant (resolves store from subdomain)
-├── database/
-│   ├── migrations/
-│   │   ├── landlord/          # Platform tables: tenants, plans, subscriptions, invoices
-│   │   └── tenant/            # Per-tenant tables: products, orders, customers, carts
-│   └── seeders/               # Plan seeder, demo tenant (Aura Living)
-├── resources/
-│   ├── views/                 # Blade views per surface (website / storefront / admin / superadmin)
-│   ├── css/                   # Design tokens from Documents/storeforge-color-guide.html
-│   └── js/
-├── routes/                    # web.php (website), tenant.php (storefront), admin.php, superadmin.php
-├── public/
-├── tests/                     # Feature & Unit tests
-├── deploy/                    # DigitalOcean deployment kit — see deploy/README.md
-│   ├── nginx/                 # Wildcard-subdomain server block
-│   ├── supervisor/            # Queue worker config
-│   └── scripts/               # server-setup.sh, deploy.sh, backup-db.sh
+├── frontend/                  # Angular workspace — one app, 3 lazy areas
+│   └── src/app/
+│       ├── website/           #   /        → marketing site (WEB-*)
+│       ├── admin/             #   /admin   → Store Admin Dashboard (ADM-*)
+│       ├── storefront/        #   /store   → tenant storefront (STF-*)
+│       └── core/              #   API/auth services, tenant resolver, guard
+├── backend/                   # Laravel REST API (initialize per backend/README below)
+│   ├── app/Domain/            #   Tenancy, Billing, Catalog, Orders, Customers, Reports
+│   ├── app/Http/Controllers/  #   Website / StoreAdmin / Storefront / SuperAdmin API controllers
+│   └── database/migrations/   #   landlord/ (platform) + tenant/ (per-store)
+├── deploy/                    # DigitalOcean kit — see deploy/README.md
 └── Documents/                 # BRD, color & design token guide, UI mockups
 ```
 
-## Getting started (local)
+## Quick start
 
-1. Initialize Laravel into this skeleton (one-time):
-   ```bash
-   composer create-project laravel/laravel /tmp/laravel-fresh
-   rsync -a --ignore-existing /tmp/laravel-fresh/ ./
-   composer install
-   ```
-   Existing folders (`app/Domain`, `resources/views/*`, `deploy/`, …) merge cleanly — nothing is overwritten.
-2. Copy `.env.example` → `.env`, set MySQL credentials, run `php artisan key:generate`.
-3. `php artisan migrate --path=database/migrations/landlord`
-4. `php artisan serve` and visit the marketing site.
+**Frontend** (Node 20+):
+```bash
+cd frontend
+npm install
+npm start                      # http://localhost:4200, proxies /api → localhost:8000
+```
+
+**Backend** (PHP 8.3 + Composer) — one-time init:
+```bash
+composer create-project laravel/laravel /tmp/laravel-fresh
+rsync -a --ignore-existing /tmp/laravel-fresh/ backend/
+cd backend && composer install
+cp .env.example .env && php artisan key:generate    # set DB creds; API-only: no Blade views needed
+php artisan serve                                    # http://localhost:8000
+```
 
 ## Deployment
 
-See **`deploy/README.md`** for the full DigitalOcean droplet guide (Nginx + PHP-FPM + MySQL + wildcard subdomains + SSL).
+See `deploy/README.md`. In production, Nginx serves the built Angular app
+(`frontend/dist/storeforge-frontend/browser`) and proxies `/api` to PHP-FPM.
 
 ## Reference documents
 
 - `Documents/StoreForge-BRD.docx` — Business Requirements Document v1.0
 - `Documents/storeforge-color-guide.html` — Color & Design Token Guide v1.2
-- `Documents/Mockup/` — Approved Phase-1 UI mockups (website, admin, storefront)
+- `Documents/Mockup/` — Approved Phase-1 UI mockups
