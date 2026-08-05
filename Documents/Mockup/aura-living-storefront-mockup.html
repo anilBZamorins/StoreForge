@@ -132,7 +132,7 @@
   .promo-item h4{margin:0 0 2px;font-size:13.5px;}
   .promo-item p{margin:0;font-size:12px;color:var(--muted);}
 
-  .newsletter{background:linear-gradient(135deg,#20201C,#3a3a34);border-radius:20px;padding:48px;text-align:center;color:#fff;}
+  .newsletter{background:radial-gradient(ellipse at top right, rgba(255,90,54,0.14) 0%, transparent 55%), linear-gradient(135deg,#20201C,#3a3a34);border-radius:20px;padding:48px;text-align:center;color:#fff;}
   .newsletter h2{margin:0 0 8px;font-size:26px;}
   .newsletter p{color:#B9B4A8;margin:0 0 24px;font-size:14px;}
   .news-form{display:flex;gap:10px;max-width:420px;margin:0 auto;}
@@ -813,7 +813,7 @@ let slideIdx = 0;
 function renderSlider(){
   document.getElementById('heroSlider').innerHTML = `
     ${SLIDES.map((s,i)=>`
-      <div class="slide ${i===slideIdx?'active':''}" style="background:linear-gradient(135deg, ${s.c1}, ${s.c2});">
+      <div class="slide ${i===slideIdx?'active':''}" style="background:radial-gradient(ellipse at top right, rgba(255,90,54,0.18) 0%, transparent 55%), linear-gradient(135deg, ${s.c1}, ${s.c2});">
         <div class="slide-content">
           <div class="slide-eyebrow">${s.eyebrow}</div>
           <h1>${s.title}</h1>

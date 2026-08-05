@@ -87,7 +87,7 @@
     <div class="logo"><div class="logo-mark">SF</div>StoreForge</div>
     <h1>Color &amp; Design Token Guide</h1>
     <p>The complete color system used across the three Phase-1 mockups: the StoreForge marketing website, the Store Admin Dashboard, and the Aura Living demo storefront. Click any swatch to copy its hex code.</p>
-    <span class="tag">v1.0 · extracted from mockups · Aug 2026</span>
+    <span class="tag">v1.2 · premium gradient update · Aug 2026</span>
   </div>
 </header>
 
@@ -173,14 +173,18 @@
     <h2>Gradient recipes</h2>
     <p class="sec-sub">Every gradient used across the three mockups, with its exact CSS. Click any card to copy the full <code style="font-family:monospace;font-size:12px;">background</code> rule to your clipboard.</p>
 
+    <div class="note" style="margin-bottom:20px;">
+      <b>Gradient hierarchy (v1.1):</b> <b>Flame is the PRIMARY gradient</b> — reserved for identity and action (logo marks, key buttons). <b>Ink is the PREMIUM gradient</b> — the workhorse for dark feature surfaces: CTA bands, testimonial, footer, billing plan card, primary admin buttons. CTA bands now use Ink as the background with Flame buttons on top, so the action color always pops instead of competing with its own background.
+    </div>
+
     <h3>Brand gradients (Website + Admin)</h3>
     <div class="grad-grid">
       <div class="grad-card" data-css="background:linear-gradient(135deg,#FF5A36,#FF8A5C);">
         <div class="grad-preview" style="background:linear-gradient(135deg,#FF5A36,#FF8A5C);"><span class="grad-stop">#FF5A36</span><span class="grad-stop">#FF8A5C</span></div>
         <div class="grad-body">
-          <div class="grad-name">Flame <span class="deg">135°</span></div>
+          <div class="grad-name">Flame — PRIMARY <span class="deg">135°</span></div>
           <div class="grad-css">background:linear-gradient(135deg,#FF5A36,#FF8A5C);</div>
-          <div class="grad-use">The signature brand gradient — logo mark, CTA band on the marketing site, storefront logo.</div>
+          <div class="grad-use">The signature brand gradient — logo marks on all three surfaces and key action accents. Identity &amp; action only; no longer used as a large band background.</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
@@ -189,29 +193,31 @@
         <div class="grad-body">
           <div class="grad-name">Ink — vertical <span class="deg">180°</span></div>
           <div class="grad-css">background:linear-gradient(180deg,#0F172A,#16213E);</div>
-          <div class="grad-use">Admin dashboard sidebar — a subtle top-to-bottom deepening of the Ink navy.</div>
+          <div class="grad-use">Admin dashboard sidebar and website footer — a subtle top-to-bottom deepening of the Ink navy.</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
       <div class="grad-card" data-css="background:linear-gradient(135deg,#0F172A,#16213E);">
         <div class="grad-preview" style="background:linear-gradient(135deg,#0F172A,#16213E);"><span class="grad-stop dark">#0F172A</span><span class="grad-stop dark">#16213E</span></div>
         <div class="grad-body">
-          <div class="grad-name">Ink — diagonal <span class="deg">135°</span></div>
+          <div class="grad-name">Ink — PREMIUM <span class="deg">135°</span></div>
           <div class="grad-css">background:linear-gradient(135deg,#0F172A,#16213E);</div>
-          <div class="grad-use">The "current plan" hero card on the Billing &amp; Subscription page.</div>
+          <div class="grad-use">The premium surface gradient: website CTA bands, testimonial block, hero browser mock, step numbers, billing plan card, admin primary buttons &amp; avatar. Pair with Flame buttons on top.</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
-      <div class="grad-card" data-css="background:linear-gradient(135deg,#111827,#374151);">
-        <div class="grad-preview" style="background:linear-gradient(135deg,#111827,#374151);"><span class="grad-stop dark">#111827</span><span class="grad-stop dark">#374151</span></div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#20201C,#3A3A34);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#20201C,#3A3A34);"><span class="grad-stop dark">#20201C</span><span class="grad-stop dark">#3A3A34</span></div>
         <div class="grad-body">
-          <div class="grad-name">Slate <span class="deg">135°</span></div>
-          <div class="grad-css">background:linear-gradient(135deg,#111827,#374151);</div>
-          <div class="grad-use">The mini storefront preview inside the marketing hero's browser mock.</div>
+          <div class="grad-name">Warm Ink — PREMIUM (storefront) <span class="deg">135°</span></div>
+          <div class="grad-css">background:linear-gradient(135deg,#20201C,#3A3A34);</div>
+          <div class="grad-use">The storefront's warm equivalent of the Ink premium gradient — newsletter band and announcement bar (90°). Hero slide 1 uses the slightly warmer close <code style="font-family:monospace;">#4A4238</code>.</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
     </div>
+
+    <p class="sec-sub" style="margin-top:14px;"><b>Retired:</b> Slate <code style="font-family:monospace;font-size:12px;">#111827 → #374151</code> (old hero browser mock) — replaced by the Ink premium gradient in v1.1.</p>
 
     <h3>Storefront category-card gradients (Aura Living)</h3>
     <div class="grad-grid">
@@ -246,12 +252,12 @@
 
     <h3>Promo banner gradients (Admin → Banners)</h3>
     <div class="grad-grid">
-      <div class="grad-card" data-css="background:linear-gradient(135deg,#101828,#2F80ED);">
-        <div class="grad-preview" style="background:linear-gradient(135deg,#101828,#2F80ED);"><span class="grad-stop dark">#101828</span><span class="grad-stop dark">#2F80ED</span></div>
+      <div class="grad-card" data-css="background:linear-gradient(135deg,#0F172A,#16213E);">
+        <div class="grad-preview" style="background:linear-gradient(135deg,#0F172A,#16213E);"><span class="grad-stop dark">#0F172A</span><span class="grad-stop dark">#16213E</span></div>
         <div class="grad-body">
           <div class="grad-name">Homepage banner <span class="deg">135°</span></div>
-          <div class="grad-css">background:linear-gradient(135deg,#101828,#2F80ED);</div>
-          <div class="grad-use">"Summer Refresh" homepage banner — ink to sky.</div>
+          <div class="grad-css">background:linear-gradient(135deg,#0F172A,#16213E);</div>
+          <div class="grad-use">"Summer Refresh" homepage banner — aligned to the Ink premium gradient in v1.1 (was #101828 → #2F80ED).</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
@@ -275,21 +281,22 @@
       </div>
     </div>
 
-    <h3>Radial hero wash (Marketing site)</h3>
+    <h3>Premium hero (Marketing site)</h3>
     <div class="grad-grid">
-      <div class="grad-card" data-css="background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%), radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);">
-        <div class="grad-preview bordered" style="background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%), radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);border-bottom:1px solid var(--border);"><span class="grad-stop">#FFF1EC</span><span class="grad-stop">#EAF1FF</span></div>
+      <div class="grad-card" data-css="background:radial-gradient(ellipse at top right, rgba(255,90,54,0.16) 0%, transparent 55%), linear-gradient(135deg,#0F172A,#16213E);">
+        <div class="grad-preview" style="background:radial-gradient(ellipse at top right, rgba(255,90,54,0.16) 0%, transparent 55%), linear-gradient(135deg,#0F172A,#16213E);"><span class="grad-stop dark">Flame glow</span><span class="grad-stop dark">#0F172A → #16213E</span></div>
         <div class="grad-body">
-          <div class="grad-name">Hero wash <span class="deg">radial ×2</span></div>
-          <div class="grad-css">background:radial-gradient(ellipse at top left, #FFF1EC 0%, #F7F8FB 45%),<br>radial-gradient(ellipse at bottom right, #EAF1FF 0%, transparent 55%);</div>
-          <div class="grad-use">Layered soft washes behind the marketing hero — a peach glow (top-left) over a cool blue haze (bottom-right) on the canvas gray.</div>
+          <div class="grad-name">Premium hero <span class="deg">radial + 135°</span></div>
+          <div class="grad-css">background:radial-gradient(ellipse at top right, rgba(255,90,54,0.16) 0%, transparent 55%),<br>linear-gradient(135deg,#0F172A,#16213E);</div>
+          <div class="grad-use">The premium signature (v1.2): a soft Flame glow layered over the Ink gradient. Used on the marketing hero, admin sidebar (0.12, top-left) &amp; billing plan card (0.16), and the storefront hero slides (0.18) &amp; newsletter band (0.14, over Warm Ink). Glow opacity 0.12–0.18 depending on surface size.</div>
           <div class="grad-hint">Click to copy CSS</div>
         </div>
       </div>
     </div>
+    <p class="sec-sub" style="margin-top:14px;"><b>Retired:</b> the light radial hero wash <code style="font-family:monospace;font-size:12px;">#FFF1EC / #EAF1FF</code> — replaced by the dark premium hero in v1.2.</p>
 
     <div class="note" style="margin-top:18px;">
-      <b>Gradient conventions:</b> diagonal gradients always run at <b>135°</b> (top-left → bottom-right); the only vertical (180°) gradient is the admin sidebar. Two-stop gradients only — the darker stop leads, the lighter stop closes. When creating new banner gradients, pick the leading stop from the neutrals/semantic palette and close with Flame <code style="font-family:monospace;">#FF5A36</code> or a brighter tint of the leading hue.
+      <b>Gradient conventions:</b> diagonal gradients always run at <b>135°</b> (top-left → bottom-right); vertical (180°) is reserved for tall surfaces (admin sidebar, website footer). Two-stop gradients only — the darker stop leads, the lighter stop closes. <b>Hierarchy:</b> Flame = identity &amp; action (logos, buttons); Ink = premium surfaces (bands, cards, dark blocks) — never place a Flame-gradient button on a Flame-gradient background. On tenant storefronts, substitute the tenant's warm-ink equivalent for platform Ink. New banner gradients should lead with a neutral/semantic color and close with Flame or a brighter tint of the leading hue.
     </div>
   </section>
 
