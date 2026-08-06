@@ -4,7 +4,7 @@
  * Flip this one flag to switch the whole app between mock data and the real API.
  */
 export const environment = {
-  production: false,
-  useMocks: true,
-  apiUrl: '/api/v1',
+  production: true,
+  useMocks: false,
+  apiUrl: 'http://localhost:8000/api/v1',
 };
