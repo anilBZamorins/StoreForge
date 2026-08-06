@@ -23,6 +23,8 @@ cd /tmp/laravel-fresh && php artisan install:api --no-interaction
 # 2. Merge INTO this folder — files already here (composer.json, .env, routes,
 #    config/database.php, app/*, database/*) always win
 rsync -a --ignore-existing /tmp/laravel-fresh/ /path/to/StoreForge/backend/
+#    Windows (PowerShell) equivalent — copies only files that do not exist yet:
+#    robocopy C:\tmp\laravel-fresh D:\path\to\StoreForge\backend /E /XC /XN /XO
 
 # 3. Install dependencies (brings laravel/framework, sanctum, stripe/stripe-php)
 cd /path/to/StoreForge/backend
@@ -40,6 +42,13 @@ php artisan migrate --seed
 # 6. Run
 php artisan serve                       # http://localhost:8000
 ```
+
+## Self-contained migrations
+
+The Laravel base migrations (users/sessions, cache, jobs, personal_access_tokens)
+are included here with `Schema::hasTable` guards — `php artisan migrate --seed`
+works even if the fresh skeleton's own migrations were not merged, and it will not
+conflict with them if they were.
 
 ## Tenant databases
 
