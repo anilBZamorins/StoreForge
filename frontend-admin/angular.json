@@ -74,7 +74,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "buildTarget": "frontend-admin:build:development"
           }
         },
         "extract-i18n": {
@@ -102,8 +103,5 @@
         }
       }
     }
-  },
-  "cli": {
-    "analytics": "2ca01e8e-5166-43e3-8da7-7a32e86e9316"
   }
 }
