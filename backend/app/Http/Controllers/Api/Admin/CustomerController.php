@@ -13,8 +13,7 @@ class CustomerController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->customers()
-                ->withCount('orders')->withSum('orders', 'total')->orderBy('name')->get()
+            Customer::withCount('orders')->withSum('orders', 'total')->orderBy('name')->get()
                 ->map(fn (Customer $c) => [
                     'id' => $c->id,
                     'name' => $c->name,

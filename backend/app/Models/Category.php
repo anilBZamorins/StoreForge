@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    protected $fillable = ['store_id', 'parent_id', 'name', 'slug', 'description'];
+    protected $connection = 'tenant';
 
-    public function store(): BelongsTo { return $this->belongsTo(Store::class); }
+    protected $fillable = ['parent_id', 'name', 'slug', 'description'];
+
     public function parent(): BelongsTo { return $this->belongsTo(self::class, 'parent_id'); }
     public function children(): HasMany { return $this->hasMany(self::class, 'parent_id'); }
     public function products(): HasMany { return $this->hasMany(Product::class); }

@@ -13,7 +13,7 @@ class CartController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->carts()->with(['customer', 'items'])->orderBy('last_activity_at')->get()
+            Cart::with(['customer', 'items'])->orderBy('last_activity_at')->get()
                 ->map(fn (Cart $c) => [
                     'id' => $c->id,
                     'customer' => $c->customer?->name ?? 'Guest',

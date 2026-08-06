@@ -1,5 +1,7 @@
 <?php
 
+// LANDLORD DATABASE (storeforge) — plans + tenants registry.
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,11 +12,11 @@ return new class extends Migration
     {
         Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();               // Starter / Growth / Enterprise
+            $table->string('name')->unique();
             $table->string('description')->nullable();
-            $table->unsignedInteger('monthly_price');       // in dollars
+            $table->unsignedInteger('monthly_price');
             $table->unsignedInteger('yearly_price');
-            $table->unsignedInteger('product_limit')->nullable();      // null = unlimited
+            $table->unsignedInteger('product_limit')->nullable();
             $table->unsignedInteger('admin_user_limit')->nullable();
             $table->unsignedInteger('custom_domain_limit')->nullable();
             $table->json('features');
@@ -25,11 +27,14 @@ return new class extends Migration
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();               // {slug}.storeforge.io
+            $table->string('slug')->unique();                    // {slug}.storeforge.io
+            $table->string('database')->unique();                // tenant's own database name
             $table->foreignId('plan_id')->constrained();
             $table->enum('billing_cycle', ['monthly', 'yearly'])->default('monthly');
             $table->enum('status', ['trial', 'active', 'cancelled'])->default('trial');
             $table->timestamp('trial_ends_at')->nullable();
+            $table->string('stripe_customer_id')->nullable()->index();
+            $table->string('stripe_subscription_id')->nullable()->index();
             $table->string('theme_color')->default('#FF5A36');
             $table->string('support_email')->nullable();
             $table->string('support_phone')->nullable();

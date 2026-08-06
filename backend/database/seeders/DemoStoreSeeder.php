@@ -12,6 +12,8 @@ use App\Models\Plan;
 use App\Models\Product;
 use App\Models\Store;
 use App\Models\User;
+use App\Services\ProvisionTenant;
+use App\Services\TenantDatabase;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -27,6 +29,7 @@ class DemoStoreSeeder extends Seeder
 
         $store = Store::updateOrCreate(['slug' => 'auraliving'], [
             'name' => 'Aura Living',
+            'database' => TenantDatabase::databaseNameFor('auraliving'),
             'plan_id' => $growth->id,
             'billing_cycle' => 'monthly',
             'status' => 'active',
@@ -35,6 +38,12 @@ class DemoStoreSeeder extends Seeder
             'support_phone' => '+1 (555) 220-4471',
             'address' => '221 Birchwood Lane, Austin, TX 78701',
         ]);
+
+        // Create + migrate the tenant's OWN database, then seed into it.
+        $provisioner = app(ProvisionTenant::class);
+        $provisioner->createDatabase($store);
+        $provisioner->migrate($store);
+        TenantDatabase::use($store);
 
         // ---- Users ----
         User::updateOrCreate(['email' => 'owner@auraliving.com'], [
@@ -55,12 +64,12 @@ class DemoStoreSeeder extends Seeder
         $subs = [];
         foreach ($tree as $parentName => [$parentSlug, $children]) {
             $parent = Category::updateOrCreate(
-                ['store_id' => $store->id, 'slug' => $parentSlug],
+                ['slug' => $parentSlug],
                 ['name' => $parentName, 'parent_id' => null],
             );
             foreach ($children as $childName => $childSlug) {
                 $subs[$childSlug] = Category::updateOrCreate(
-                    ['store_id' => $store->id, 'slug' => $childSlug],
+                    ['slug' => $childSlug],
                     ['name' => $childName, 'parent_id' => $parent->id],
                 );
             }
@@ -83,7 +92,7 @@ class DemoStoreSeeder extends Seeder
         ];
         $productIds = [];
         foreach ($products as $i => [$name, $sub, $price, $disc, $stock, $sku, $emoji, $rating, $featured, $latest, $desc]) {
-            $p = Product::updateOrCreate(['store_id' => $store->id, 'sku' => $sku], [
+            $p = Product::updateOrCreate(['sku' => $sku], [
                 'category_id' => $subs[$sub]->id, 'name' => $name, 'price' => $price,
                 'discount_percent' => $disc, 'stock' => $stock, 'emoji' => $emoji,
                 'rating' => $rating, 'featured' => $featured, 'latest' => $latest, 'description' => $desc,
@@ -109,7 +118,7 @@ class DemoStoreSeeder extends Seeder
         ];
         $byEmail = [];
         foreach ($customers as [$name, $email, $phone, $city, $joined]) {
-            $byEmail[$email] = Customer::updateOrCreate(['store_id' => $store->id, 'email' => $email], [
+            $byEmail[$email] = Customer::updateOrCreate(['email' => $email], [
                 'name' => $name, 'phone' => $phone, 'city' => $city, 'joined_at' => $joined,
             ]);
         }
@@ -127,7 +136,7 @@ class DemoStoreSeeder extends Seeder
         ];
         foreach ($orders as [$number, $email, $date, $status, $tracking, $addr, $lines]) {
             $customer = $byEmail[$email];
-            $order = Order::updateOrCreate(['store_id' => $store->id, 'number' => $number], [
+            $order = Order::updateOrCreate(['number' => $number], [
                 'customer_id' => $customer->id, 'status' => $status, 'payment_method' => 'COD',
                 'total' => 0, 'tracking_number' => $tracking,
                 'customer_name' => $customer->name, 'customer_phone' => $customer->phone,
@@ -154,10 +163,9 @@ class DemoStoreSeeder extends Seeder
             ['chris.palmer@gmail.com', 487, [[6, 1]]],
             ['isabella.t@yahoo.com', 22, [[2, 3], [7, 1]]],
         ];
-        Cart::where('store_id', $store->id)->delete();
+        Cart::query()->delete();
         foreach ($carts as [$email, $hoursIdle, $lines]) {
             $cart = Cart::create([
-                'store_id' => $store->id,
                 'customer_id' => $byEmail[$email]->id,
                 'last_activity_at' => now()->subHours($hoursIdle),
             ]);
@@ -173,7 +181,7 @@ class DemoStoreSeeder extends Seeder
             ['Offer Banner', 'Free Shipping', 'On orders over $99 this week', '#B4790C', '#FF5A36'],
         ];
         foreach ($banners as [$kind, $title, $sub, $c1, $c2]) {
-            Banner::updateOrCreate(['store_id' => $store->id, 'title' => $title], [
+            Banner::updateOrCreate(['title' => $title], [
                 'kind' => $kind, 'subtitle' => $sub, 'color1' => $c1, 'color2' => $c2, 'active' => true,
             ]);
         }

@@ -13,9 +13,11 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\Store\OrderController as StoreOrderController;
 use App\Http\Controllers\Api\Store\StorefrontController;
 use App\Http\Middleware\ResolveStore;
+use App\Http\Middleware\UseTenantDatabase;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -24,6 +26,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/plans', [PlanController::class, 'index']);
     Route::post('/register', [RegisterController::class, 'store']);
+    Route::get('/register/status', [RegisterController::class, 'status']);
+    Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
     Route::post('/contact', [ContactController::class, 'store']);
 
     // ---------- Authenticated (Sanctum bearer token) ----------
@@ -32,7 +36,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
 
         // ---------- Store Admin (frontend-admin) ----------
-        Route::prefix('admin')->group(function () {
+        Route::prefix('admin')->middleware(UseTenantDatabase::class)->group(function () {
             Route::get('/dashboard/kpis', [DashboardController::class, 'kpis']);
 
             Route::get('/products', [ProductController::class, 'index']);

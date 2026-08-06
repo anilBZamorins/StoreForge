@@ -3,22 +3,27 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\PendingRegistration;
 use App\Models\Plan;
-use App\Models\Store;
-use App\Models\User;
+use App\Services\ProvisionTenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Stripe\Checkout\Session as StripeSession;
+use Stripe\Stripe;
 
 class RegisterController extends Controller
 {
     /**
-     * POST /api/v1/register — self-service tenant provisioning (PRV-01..06).
-     * Creates the store, default catalog structure, and the owner account.
+     * POST /api/v1/register — self-service tenant registration.
+     *
+     * trial: true  → no card required (BR-03): provisions the tenant database
+     *                immediately and returns the credentials.
+     * trial: false → creates a Stripe Checkout subscription session and returns
+     *                { checkoutUrl }. Provisioning happens in the webhook after
+     *                payment; the frontend polls GET /register/status.
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, ProvisionTenant $provisioner): JsonResponse
     {
         $data = $request->validate([
             'businessName' => ['required', 'string', 'max:100'],
@@ -30,51 +35,81 @@ class RegisterController extends Controller
             'trial' => ['nullable', 'boolean'],
         ]);
 
-        $slug = $this->uniqueSlug($data['businessName']);
-        $temporaryPassword = $data['password'] ?? ('Tmp#' . Str::random(8));
+        $plan = Plan::where('name', $data['plan'])->firstOrFail();
+        $cycle = $data['billingCycle'] ?? 'monthly';
         $trial = $data['trial'] ?? true;
 
-        $store = DB::transaction(function () use ($data, $slug, $temporaryPassword, $trial) {
-            $plan = Plan::where('name', $data['plan'])->firstOrFail();
+        // ---------- Free trial: provision immediately ----------
+        if ($trial) {
+            $result = $provisioner->provision(
+                $data['businessName'], $data['name'], $data['email'],
+                $data['password'] ?? null, $plan, $cycle, trial: true,
+            );
 
-            $store = Store::create([
-                'name' => $data['businessName'],
-                'slug' => $slug,
-                'plan_id' => $plan->id,
-                'billing_cycle' => $data['billingCycle'] ?? 'monthly',
-                'status' => $trial ? 'trial' : 'active',
-                'trial_ends_at' => $trial ? now()->addDays(14) : null,
-            ]);
+            return response()->json([
+                'storeUrl' => $result['store']->slug . '.storeforge.io',
+                'adminEmail' => $data['email'],
+                'temporaryPassword' => $result['temporaryPassword'],
+            ], 201);
+        }
 
-            // Default catalog structure (PRV-04)
-            $store->categories()->create(['name' => 'General', 'slug' => 'general', 'parent_id' => null]);
+        // ---------- Paid: Stripe Checkout, provision on webhook ----------
+        $request->validate(['password' => ['required', 'string', 'min:8']]);
 
-            User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make($temporaryPassword),
-                'role' => 'store_owner',
-                'store_id' => $store->id,
-            ]);
+        $pending = PendingRegistration::create([
+            'business_name' => $data['businessName'],
+            'owner_name' => $data['name'],
+            'email' => $data['email'],
+            'password_hash' => Hash::make($data['password']),
+            'plan_name' => $plan->name,
+            'billing_cycle' => $cycle,
+            'status' => 'awaiting_payment',
+        ]);
 
-            return $store;
-        });
+        Stripe::setApiKey(config('stripe.secret'));
 
-        return response()->json([
-            'storeUrl' => $store->slug . '.storeforge.io',
-            'adminEmail' => $data['email'],
-            'temporaryPassword' => $temporaryPassword,
-        ], 201);
+        $amount = ($cycle === 'yearly' ? $plan->yearly_price : $plan->monthly_price) * 100;
+        $frontend = rtrim(config('stripe.frontend_url'), '/');
+
+        $session = StripeSession::create([
+            'mode' => 'subscription',
+            'customer_email' => $data['email'],
+            'line_items' => [[
+                'quantity' => 1,
+                'price_data' => [
+                    'currency' => config('stripe.currency'),
+                    'unit_amount' => $amount,
+                    'recurring' => ['interval' => $cycle === 'yearly' ? 'year' : 'month'],
+                    'product_data' => [
+                        'name' => "StoreForge {$plan->name} Plan",
+                        'description' => "StoreForge {$plan->name} subscription, billed {$cycle}.",
+                    ],
+                ],
+            ]],
+            'metadata' => ['pending_registration_id' => (string) $pending->id],
+            'subscription_data' => ['metadata' => ['pending_registration_id' => (string) $pending->id]],
+            'success_url' => $frontend . '/register?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => $frontend . '/register?cancelled=1',
+        ]);
+
+        $pending->update(['stripe_session_id' => $session->id]);
+
+        return response()->json(['checkoutUrl' => $session->url, 'sessionId' => $session->id]);
     }
 
-    private function uniqueSlug(string $businessName): string
+    /**
+     * GET /api/v1/register/status?session_id=cs_...
+     * Polled by the frontend after returning from Stripe Checkout.
+     */
+    public function status(Request $request): JsonResponse
     {
-        $base = Str::of($businessName)->lower()->replaceMatches('/[^a-z0-9]+/', '')->substr(0, 20)->toString() ?: 'store';
-        $slug = $base;
-        $i = 1;
-        while (Store::where('slug', $slug)->exists()) {
-            $slug = $base . ++$i;
-        }
-        return $slug;
+        $request->validate(['session_id' => ['required', 'string']]);
+
+        $pending = PendingRegistration::where('stripe_session_id', $request->query('session_id'))->firstOrFail();
+
+        return response()->json([
+            'status' => $pending->status,                  // awaiting_payment | completed | failed
+            'result' => $pending->status === 'completed' ? $pending->result : null,
+        ]);
     }
 }

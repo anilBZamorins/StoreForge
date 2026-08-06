@@ -13,7 +13,7 @@ class OrderController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->orders()->withCount('items')->orderByDesc('placed_at')->get()
+            Order::withCount('items')->orderByDesc('placed_at')->get()
                 ->map(fn (Order $o) => $this->transform($o)),
         );
     }
@@ -21,8 +21,6 @@ class OrderController extends Controller
     /** PUT /api/v1/admin/orders/{order}  {status?, tracking?} */
     public function update(Request $request, Order $order): JsonResponse
     {
-        abort_unless($order->store_id === $request->user()->store_id, 404);
-
         $data = $request->validate([
             'status' => ['nullable', 'in:Pending,Processing,Shipped,Out for Delivery,Delivered,Cancelled'],
             'tracking' => ['nullable', 'string', 'max:60'],

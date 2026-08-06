@@ -13,7 +13,7 @@ class BannerController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->banners()->orderBy('id')->get()
+            Banner::orderBy('id')->get()
                 ->map(fn (Banner $b) => $this->transform($b)),
         );
     }
@@ -21,7 +21,7 @@ class BannerController extends Controller
     /** POST /api/v1/admin/banners */
     public function store(Request $request): JsonResponse
     {
-        $banner = $request->user()->store->banners()->create($this->validated($request));
+        $banner = Banner::create($this->validated($request));
 
         return response()->json($this->transform($banner), 201);
     }
@@ -29,7 +29,6 @@ class BannerController extends Controller
     /** PUT /api/v1/admin/banners/{banner} — also used to toggle active */
     public function update(Request $request, Banner $banner): JsonResponse
     {
-        abort_unless($banner->store_id === $request->user()->store_id, 404);
         $banner->update($this->validated($request, partial: true));
 
         return response()->json($this->transform($banner->fresh()));

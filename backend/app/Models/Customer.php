@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
-    protected $fillable = ['store_id', 'name', 'email', 'phone', 'city', 'joined_at'];
+    protected $connection = 'tenant';
+
+    protected $fillable = ['name', 'email', 'phone', 'city', 'joined_at'];
 
     protected $casts = ['joined_at' => 'datetime'];
 
-    public function store(): BelongsTo { return $this->belongsTo(Store::class); }
     public function orders(): HasMany { return $this->hasMany(Order::class); }
     public function carts(): HasMany { return $this->hasMany(Cart::class); }
 }

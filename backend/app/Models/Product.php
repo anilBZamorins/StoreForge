@@ -7,14 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
+    protected $connection = 'tenant';
+
     protected $fillable = [
-        'store_id', 'category_id', 'name', 'sku', 'price', 'discount_percent', 'stock',
+        'category_id', 'name', 'sku', 'price', 'discount_percent', 'stock',
         'emoji', 'image_url', 'rating', 'featured', 'latest', 'short_description', 'description',
     ];
 
     protected $casts = ['featured' => 'boolean', 'latest' => 'boolean', 'rating' => 'float'];
 
-    public function store(): BelongsTo { return $this->belongsTo(Store::class); }
     public function category(): BelongsTo { return $this->belongsTo(Category::class); }
 
     public function finalPrice(): int

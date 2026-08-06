@@ -13,10 +13,8 @@ class CategoryController extends Controller
     /** GET /api/v1/admin/categories (ADM-03) — parent tree with product counts */
     public function index(Request $request): JsonResponse
     {
-        $store = $request->user()->store;
-
         return response()->json(
-            $store->categories()->whereNull('parent_id')->with(['children' => fn ($q) => $q->withCount('products')])
+            Category::query()->whereNull('parent_id')->with(['children' => fn ($q) => $q->withCount('products')])
                 ->orderBy('id')->get()
                 ->map(fn (Category $c) => [
                     'id' => $c->slug,
@@ -31,7 +29,6 @@ class CategoryController extends Controller
     /** POST /api/v1/admin/categories  {name, description?, parentId?} */
     public function store(Request $request): JsonResponse
     {
-        $store = $request->user()->store;
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -40,12 +37,12 @@ class CategoryController extends Controller
 
         $parent = null;
         if (! empty($data['parentId'])) {
-            $parent = $store->categories()->where('slug', $data['parentId'])->whereNull('parent_id')->firstOrFail();
+            $parent = Category::where('slug', $data['parentId'])->whereNull('parent_id')->firstOrFail();
         }
 
-        $category = $store->categories()->create([
+        $category = Category::create([
             'name' => $data['name'],
-            'slug' => $this->uniqueSlug($store->id, $data['name']),
+            'slug' => $this->uniqueSlug($data['name']),
             'description' => $data['description'] ?? null,
             'parent_id' => $parent?->id,
         ]);
@@ -56,7 +53,7 @@ class CategoryController extends Controller
     /** PUT /api/v1/admin/categories/{slug} */
     public function update(Request $request, string $slug): JsonResponse
     {
-        $category = $request->user()->store->categories()->where('slug', $slug)->firstOrFail();
+        $category = Category::where('slug', $slug)->firstOrFail();
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -69,17 +66,17 @@ class CategoryController extends Controller
     /** DELETE /api/v1/admin/categories/{slug} */
     public function destroy(Request $request, string $slug): JsonResponse
     {
-        $request->user()->store->categories()->where('slug', $slug)->firstOrFail()->delete();
+        Category::where('slug', $slug)->firstOrFail()->delete();
 
         return response()->json(['ok' => true]);
     }
 
-    private function uniqueSlug(int $storeId, string $name): string
+    private function uniqueSlug(string $name): string
     {
         $base = Str::slug($name) ?: 'category';
         $slug = $base;
         $i = 1;
-        while (Category::where('store_id', $storeId)->where('slug', $slug)->exists()) {
+        while (Category::where('slug', $slug)->exists()) {
             $slug = $base . '-' . ++$i;
         }
         return $slug;

@@ -15,10 +15,8 @@ class StorefrontController extends Controller
     /** GET /api/v1/store/slides (STF-02) — hero slides derived from active banners */
     public function slides(Request $request): JsonResponse
     {
-        $store = $request->attributes->get('store');
-
         return response()->json(
-            $store->banners()->where('active', true)->orderBy('id')->get()
+            Banner::where('active', true)->orderBy('id')->get()
                 ->map(fn (Banner $b) => [
                     'eyebrow' => str_replace(' Banner', '', $b->kind),
                     'title' => $b->title,
@@ -32,11 +30,10 @@ class StorefrontController extends Controller
     /** GET /api/v1/store/categories (STF-03) — parent categories with gradient colors */
     public function categories(Request $request): JsonResponse
     {
-        $store = $request->attributes->get('store');
         $palette = [['#8A6A4E', '#B5673B'], ['#3B2F6C', '#7C9473'], ['#20201C', '#8A6A4E'], ['#0F172A', '#16213E']];
 
         return response()->json(
-            $store->categories()->whereNull('parent_id')->orderBy('id')->get()->values()
+            Category::whereNull('parent_id')->orderBy('id')->get()->values()
                 ->map(fn (Category $c, int $i) => [
                     'id' => $c->slug,
                     'name' => $c->name,
@@ -49,10 +46,8 @@ class StorefrontController extends Controller
     /** GET /api/v1/store/products (STF-03/04) — shape matches frontend-storefront mock.ts */
     public function products(Request $request): JsonResponse
     {
-        $store = $request->attributes->get('store');
-
         return response()->json(
-            $store->products()->with('category')->orderBy('id')->get()
+            Product::query()->with('category')->orderBy('id')->get()
                 ->map(fn (Product $p) => $this->transform($p)),
         );
     }
@@ -60,8 +55,7 @@ class StorefrontController extends Controller
     /** GET /api/v1/store/products/{id} */
     public function product(Request $request, int $id): JsonResponse
     {
-        $store = $request->attributes->get('store');
-        $product = $store->products()->with('category')->findOrFail($id);
+        $product = Product::with('category')->findOrFail($id);
 
         return response()->json($this->transform($product));
     }

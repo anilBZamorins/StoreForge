@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Store;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -20,7 +21,7 @@ class OrderController extends Controller
     {
         $store = $request->attributes->get('store');
 
-        $query = $store->orders()->withCount('items')->orderByDesc('placed_at');
+        $query = Order::withCount('items')->orderByDesc('placed_at');
         if ($email = $request->query('email')) {
             $query->whereHas('customer', fn ($q) => $q->where('email', $email));
         }
@@ -57,7 +58,7 @@ class OrderController extends Controller
             $customer = null;
             if (! empty($data['email'])) {
                 $customer = Customer::firstOrCreate(
-                    ['store_id' => $store->id, 'email' => $data['email']],
+                    ['email' => $data['email']],
                     ['name' => $data['name'], 'phone' => $data['phone'], 'city' => $data['city'], 'joined_at' => now()],
                 );
             }
@@ -67,9 +68,9 @@ class OrderController extends Controller
                 (empty($data['zip']) ? '' : " {$data['zip']}"));
 
             $prefix = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $store->name) ?: 'SF', 0, 2));
-            $number = $prefix . '-' . str_pad((string) ($store->orders()->count() + 3100), 4, '0', STR_PAD_LEFT);
+            $number = $prefix . '-' . str_pad((string) (Order::count() + 3100), 4, '0', STR_PAD_LEFT);
 
-            $order = $store->orders()->create([
+            $order = Order::create([
                 'customer_id' => $customer?->id,
                 'number' => $number,
                 'status' => 'Pending',
@@ -83,7 +84,7 @@ class OrderController extends Controller
 
             $total = 0;
             foreach ($data['items'] as $line) {
-                $product = $store->products()->findOrFail($line['productId']);
+                $product = Product::findOrFail($line['productId']);
                 abort_if($product->stock < $line['qty'], 422, "Insufficient stock for {$product->name}.");
                 $order->items()->create([
                     'product_id' => $product->id,
@@ -98,7 +99,7 @@ class OrderController extends Controller
 
             // Clear this customer's pending cart, if any
             if ($customer) {
-                $store->carts()->where('customer_id', $customer->id)->delete();
+                Cart::where('customer_id', $customer->id)->delete();
             }
 
             return $order;

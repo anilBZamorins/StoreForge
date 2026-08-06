@@ -13,7 +13,7 @@ class InvoiceController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->invoices()->orderByDesc('issued_at')->get()
+            Invoice::where('store_id', $request->user()->store_id)->orderByDesc('issued_at')->get()
                 ->map(fn (Invoice $i) => [
                     'id' => $i->number,
                     'date' => $i->issued_at->format('d M Y'),

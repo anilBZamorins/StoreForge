@@ -14,7 +14,7 @@ class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         return response()->json(
-            $request->user()->store->products()->with('category')->orderBy('id')->get()
+            Product::with('category')->orderBy('id')->get()
                 ->map(fn (Product $p) => $this->transform($p)),
         );
     }
@@ -22,10 +22,9 @@ class ProductController extends Controller
     /** POST /api/v1/admin/products */
     public function store(Request $request): JsonResponse
     {
-        $store = $request->user()->store;
-        $data = $this->validated($request, $store->id);
+        $data = $this->validated($request);
 
-        $product = $store->products()->create($data);
+        $product = Product::create($data);
 
         return response()->json($this->transform($product->load('category')), 201);
     }
@@ -33,8 +32,7 @@ class ProductController extends Controller
     /** PUT /api/v1/admin/products/{product} */
     public function update(Request $request, Product $product): JsonResponse
     {
-        abort_unless($product->store_id === $request->user()->store_id, 404);
-        $product->update($this->validated($request, $product->store_id, $product->id));
+        $product->update($this->validated($request));
 
         return response()->json($this->transform($product->fresh('category')));
     }
@@ -42,13 +40,12 @@ class ProductController extends Controller
     /** DELETE /api/v1/admin/products/{product} */
     public function destroy(Request $request, Product $product): JsonResponse
     {
-        abort_unless($product->store_id === $request->user()->store_id, 404);
         $product->delete();
 
         return response()->json(['ok' => true]);
     }
 
-    private function validated(Request $request, int $storeId, ?int $ignoreId = null): array
+    private function validated(Request $request): array
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
@@ -62,8 +59,7 @@ class ProductController extends Controller
             'fullDesc' => ['nullable', 'string'],
         ]);
 
-        $category = Category::where('store_id', $storeId)->where('slug', $data['sub'])
-            ->whereNotNull('parent_id')->firstOrFail();
+        $category = Category::where('slug', $data['sub'])->whereNotNull('parent_id')->firstOrFail();
 
         return [
             'category_id' => $category->id,

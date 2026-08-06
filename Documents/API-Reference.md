@@ -1,6 +1,8 @@
 # StoreForge — API Reference & Database Schema
 
-**Version:** 1.0 · **Base URL:** `/api/v1` · **Auth:** Laravel Sanctum personal access tokens (`Authorization: Bearer <token>`)
+**Version:** 1.1 · **Base URL:** `/api/v1` · **Auth:** Laravel Sanctum personal access tokens (`Authorization: Bearer <token>`)
+
+**Architecture:** database-per-tenant. The central landlord database **`storeforge`** (SuperAdmin control) holds plans, all tenants, users, subscription invoices, and registrations. Every tenant gets its **own database** `storeforge_{slug}`, created automatically at provisioning — physical data isolation (NFR-01). Paid registrations run through **Stripe Checkout**; free trials provision instantly with no card.
 
 This document covers every endpoint consumed by the three Angular apps (`frontend-website`, `frontend-admin`, `frontend-storefront`) and the full database schema. Implementation lives in `backend/` — see `backend/README.md` for setup.
 
@@ -29,14 +31,16 @@ Authorization: Bearer 1|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
 | GET | `/plans` | — | All subscription plans. Superset shape serves both apps: `{ name, description, monthlyPrice, yearlyPrice, monthly, yearly, features, feats, featured, productLimit, adminUserLimit, customDomainLimit }`. |
-| POST | `/register` | — | Tenant provisioning (PRV-01..06). Body: `{ businessName, name, email, password?, plan, billingCycle?, trial? }`. Creates store + slug + default category + owner user. Returns `201 { storeUrl, adminEmail, temporaryPassword }`. |
-| POST | `/contact` | — | Platform enquiry (WEB-04). Body: `{ name, email, phone?, topic?, message }`. Returns `201 { ok: true }`. |
+| POST | `/register` | — | Tenant registration (PRV-01..06). Body: `{ businessName, name, email, password?, plan, billingCycle?, trial? }`.<br>**`trial: true`** → provisions immediately (creates the tenant database, default catalog, owner). Returns `201 { storeUrl, adminEmail, temporaryPassword }`.<br>**`trial: false`** → `password` required; creates a Stripe **subscription** Checkout Session and returns `{ checkoutUrl, sessionId }`. Provisioning happens on the webhook after payment. |
+| GET | `/register/status?session_id=` | — | Poll after Stripe Checkout: `{ status: awaiting_payment \| completed \| failed, result?: { storeUrl, adminEmail } }`. |
+| POST | `/stripe/webhook` | Stripe signature | Stripe events: `checkout.session.completed` → provision tenant DB + store + owner; `invoice.paid` → record subscription invoice; `customer.subscription.deleted` → mark tenant cancelled. |
+| POST | `/contact` | — | Platform enquiry → landlord DB (WEB-04). Body: `{ name, email, phone?, topic?, message }`. Returns `201 { ok: true }`. |
 
 ---
 
 ## 3. Store Admin APIs (frontend-admin) — `Bearer` required
 
-All routes are scoped to the authenticated user's store (`users.store_id`) — tenant isolation is enforced server-side (NFR-01).
+All routes run behind `UseTenantDatabase` middleware: queries execute against the **authenticated user's own tenant database** — isolation is physical, not just a WHERE clause (NFR-01). Invoices and settings read the landlord DB.
 
 ### Dashboard
 | Method | Endpoint | Description |
@@ -83,7 +87,7 @@ Stock status is **derived**, never stored: `0 → Out of Stock`, `< 10 → Low S
 
 ## 4. Storefront APIs (frontend-storefront) — public, tenant-resolved
 
-The tenant is resolved by `ResolveStore` middleware, in priority order: `X-Store: auraliving` header → `?store=auraliving` query → `{slug}.storeforge.io` subdomain. **Dev tip:** append `?store=auraliving`.
+The tenant is resolved by `ResolveStore` middleware — `X-Store: auraliving` header → `?store=auraliving` query → `{slug}.storeforge.io` subdomain — which also switches the connection to that tenant's database. **Dev tip:** append `?store=auraliving`.
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -99,31 +103,55 @@ The tenant is resolved by `ResolveStore` middleware, in priority order: `X-Store
 
 ## 5. Database Schema
 
-Single database, multi-tenant by `store_id` foreign key — every tenant-owned table cascades on store delete, and every admin query is scoped by the authenticated user's store (NFR-01).
+**Two levels of databases.** The landlord database `storeforge` is the SuperAdmin control plane; each tenant's commerce data lives in its own database `storeforge_{slug}` with **no `store_id` columns** — the database itself is the isolation boundary. Tenant DBs are created by `App\Services\ProvisionTenant` and migrated from `database/migrations/tenant/` (`php artisan tenants:migrate` applies new migrations to all of them).
+
+### 5.1 Landlord database — `storeforge` (SuperAdmin / platform control)
 
 | Table | Columns (key ones) | Purpose |
 |---|---|---|
 | `plans` | id, name ᵁ, description, monthly_price, yearly_price, product_limit ᴺ, admin_user_limit ᴺ, custom_domain_limit ᴺ, features (json), featured | Subscription plans (SUB-01). `NULL` limit = unlimited. |
-| `stores` | id, name, slug ᵁ, plan_id →plans, billing_cycle, status (trial/active/cancelled), trial_ends_at ᴺ, theme_color, support_email, support_phone, address | Tenants. `slug` powers `{slug}.storeforge.io`. |
-| `users` | id, name, email ᵁ, password, **role** (super_admin/store_owner/store_admin), **store_id** →stores ᴺ | All logins. Sanctum tokens live in `personal_access_tokens` (created by `install:api`). |
-| `categories` | id, store_id →stores, parent_id →categories ᴺ, name, slug, description ᴺ · unique(store, slug) | Two-level category tree (ADM-03). |
-| `products` | id, store_id, category_id →categories, name, sku, price, discount_percent, stock, emoji, image_url ᴺ, rating, featured, latest, short_description ᴺ, description ᴺ · unique(store, sku) | Catalog (ADM-02 / STF-03). |
-| `banners` | id, store_id, kind, title, subtitle ᴺ, color1, color2, active | Homepage/Category/Offer banners; also feed storefront hero slides (ADM-04). |
-| `customers` | id, store_id, name, email, phone ᴺ, city ᴺ, joined_at · unique(store, email) | Shoppers (ADM-07). |
-| `orders` | id, store_id, customer_id →customers ᴺ, number (AL-3081) · unique(store, number), status, payment_method (COD/Card), total, tracking_number ᴺ, customer_name, customer_phone, delivery_address, placed_at | Order lifecycle per BRD §7. |
-| `order_items` | id, order_id →orders, product_id ᴺ, name, quantity, unit_price | Line items; unit_price captures the discounted price at purchase time. |
-| `carts` | id, store_id, customer_id ᴺ, last_activity_at | Carts pending checkout; state derived from `last_activity_at` (ADM-06). |
-| `cart_items` | id, cart_id →carts, product_id, quantity | Cart lines. |
-| `invoices` | id, store_id, number (INV-0231) · unique(store, number), plan_name, amount, status, issued_at | Subscription billing history (SUB-06). |
-| `contact_messages` | id, store_id ᴺ (null = platform enquiry), name, email, phone ᴺ, topic ᴺ, order_number ᴺ, message | Contact forms from website and storefronts. |
+| `stores` | id, name, slug ᵁ, **database** ᵁ, plan_id →plans, billing_cycle, status (trial/active/cancelled), trial_ends_at ᴺ, **stripe_customer_id** ᴺ, **stripe_subscription_id** ᴺ, theme_color, support_email, support_phone, address | Tenant registry — one row per store, pointing at its own database. |
+| `users` | id, name, email ᵁ, password, **role** (super_admin/store_owner/store_admin), **store_id** →stores ᴺ | All logins (platform + store staff). Sanctum tokens in `personal_access_tokens`. |
+| `invoices` | id, store_id →stores, number · unique(store, number), plan_name, amount, status, stripe_invoice_id ᴺ, issued_at | Subscription billing history (SUB-06), fed by Stripe `invoice.paid`. |
+| `pending_registrations` | id, stripe_session_id ᵁᴺ, business_name, owner_name, email, password_hash ᴺ, plan_name, billing_cycle, status (awaiting_payment/completed/failed), result (json) ᴺ | Paid registrations awaiting Stripe Checkout completion. |
+| `contact_messages` | id, name, email, phone ᴺ, topic ᴺ, message | Platform enquiries from the marketing site. |
+
+### 5.2 Tenant databases — `storeforge_{slug}` (one per store)
+
+| Table | Columns (key ones) | Purpose |
+|---|---|---|
+| `categories` | id, parent_id →categories ᴺ, name, slug ᵁ, description ᴺ | Two-level category tree (ADM-03). |
+| `products` | id, category_id →categories, name, sku ᵁ, price, discount_percent, stock, emoji, image_url ᴺ, rating, featured, latest, short_description ᴺ, description ᴺ | Catalog (ADM-02 / STF-03). |
+| `banners` | id, kind, title, subtitle ᴺ, color1, color2, active | Banners; also feed storefront hero slides (ADM-04). |
+| `customers` | id, name, email ᵁ, phone ᴺ, city ᴺ, joined_at | Shoppers (ADM-07). |
+| `orders` | id, customer_id ᴺ, number ᵁ (AL-3081), status, payment_method (COD/Card), total, tracking_number ᴺ, customer_name, customer_phone, delivery_address, placed_at | Order lifecycle per BRD §7. |
+| `order_items` | id, order_id →orders, product_id ᴺ, name, quantity, unit_price | Line items at purchase-time prices. |
+| `carts` / `cart_items` | carts: id, customer_id ᴺ, last_activity_at · cart_items: cart_id, product_id, quantity | Carts pending checkout; state derived from `last_activity_at` (ADM-06). |
+| `contact_messages` | id, name, email, phone ᴺ, order_number ᴺ, message | Storefront enquiries (STF-10). |
 
 ᵁ = unique · ᴺ = nullable · → = foreign key
+
+### 5.3 Stripe registration flow
+
+```
+POST /register (trial:false) ──► pending_registrations (awaiting_payment)
+        │                              │
+        └─► Stripe Checkout Session ◄──┘   frontend redirects to checkoutUrl
+                     │ payment
+                     ▼
+POST /stripe/webhook (checkout.session.completed)
+        └─► ProvisionTenant: CREATE DATABASE storeforge_{slug}
+            → migrate tenant schema → store + owner user (landlord)
+            → pending_registrations.status = completed
+                     ▲
+GET /register/status?session_id=…  (frontend polls → { storeUrl, adminEmail })
+```
 
 ---
 
 ## 6. Seed Data (`php artisan migrate --seed`)
 
-`PlanSeeder` creates the three plans. `DemoStoreSeeder` creates the **Aura Living** demo tenant with the *exact* dataset the Angular `mock.ts` files use — flip `useMocks: false` and the apps look identical:
+`PlanSeeder` creates the three plans. `DemoStoreSeeder` provisions the **Aura Living** demo tenant — creating its own database `storeforge_auraliving`, migrating it, then seeding the *exact* dataset the Angular `mock.ts` files use — flip `useMocks: false` and the apps look identical:
 
 3 parent categories with 7 sub-categories · 12 products (SKUs `AL-BED-101` … `AL-FUR-618`) · 13 customers · 8 orders (`AL-3081`–`AL-3088`) with line items and correct statuses · 5 pending carts at 5–487 hours idle · 3 banners · 4 invoices · owner + super-admin users.
 
