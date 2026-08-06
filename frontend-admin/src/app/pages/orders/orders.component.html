@@ -1,41 +1,85 @@
-<h1>Orders</h1>
-<p class="sub">Track and fulfil customer orders</p>
-
 <div class="toolbar">
-  <input placeholder="Search order ID or customer…" [ngModel]="search()" (ngModelChange)="search.set($event)">
-  <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+  <div class="search-mini">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.6-3.6"/></svg>
+    <input placeholder="Search order ID or customer…" [ngModel]="search()" (ngModelChange)="search.set($event); page.set(1)">
+  </div>
+  <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); page.set(1)">
     <option value="">All statuses</option>
     @for (s of statuses; track s) { <option>{{ s }}</option> }
   </select>
-  <small>{{ filtered().length }} of {{ orders().length }} orders</small>
+  <span class="spacer"></span>
 </div>
 
 <div class="tcard">
   <table>
-    <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead>
     <tbody>
-      @for (o of filtered(); track o.id) {
-        <tr (click)="selected.set(o)">
+      @for (o of paged(); track o.id) {
+        <tr (click)="open(o)">
           <td><b>{{ o.id }}</b></td><td>{{ o.customer }}</td><td>{{ o.date }}</td>
           <td>{{ o.items }}</td><td>${{ o.total }}</td>
+          <td>Cash on Delivery</td>
           <td><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></td>
-          <td>
-            @if (canAdvance(o)) {
-              <button class="adv" (click)="advance(o); $event.stopPropagation()">→ {{ nextStatus(o) }}</button>
-            }
-          </td>
         </tr>
       }
     </tbody>
   </table>
 </div>
 
+<div class="pager">
+  <span>{{ filtered().length }} of {{ orders().length }} orders</span>
+  <span class="pages">
+    @for (p of pages(); track p) {
+      <button [class.on]="p === page()" (click)="setPage(p)">{{ p }}</button>
+    }
+    <button (click)="setPage(page() + 1)">›</button>
+  </span>
+</div>
+
+<!-- ============ ORDER DETAIL MODAL ============ -->
 @if (selected(); as o) {
-  <div class="detail tcard">
-    <h3>Order {{ o.id }} — {{ o.customer }}</h3>
-    <div class="drow"><span>Phone</span><span>{{ o.phone }}</span></div>
-    <div class="drow"><span>Delivery address</span><span>{{ o.addr }}</span></div>
-    <div class="drow"><span>Tracking</span><span>{{ o.tracking || '—' }}</span></div>
-    <div class="drow"><span>Status</span><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></div>
+  <div class="overlay" (click)="close()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ o.id }}</h3>
+        <button class="modal-close" (click)="close()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="track-steps">
+          @for (s of flow; track s; let i = $index) {
+            <div class="track-step"
+                 [class.done]="stepIndex(o.status) > i"
+                 [class.now]="stepIndex(o.status) === i">
+              <span class="track-dot"></span>
+              <span class="track-lbl">{{ s }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="drow"><span>Customer</span><b>{{ o.customer }}</b></div>
+        <div class="drow"><span>Phone</span><b>{{ o.phone }}</b></div>
+        <div class="drow"><span>Delivery Address</span><b>{{ o.addr }}</b></div>
+        <div class="drow"><span>Order Date</span><b>{{ o.date }}</b></div>
+        <div class="drow"><span>Payment Method</span><b>Cash on Delivery</b></div>
+        <div class="drow"><span>Items</span><b>{{ o.items }}</b></div>
+        <div class="drow"><span>Order Total</span><b>${{ o.total }}</b></div>
+
+        <div class="edit-row">
+          <label>Update Status
+            <select [ngModel]="editStatus()" (ngModelChange)="editStatus.set($event)">
+              @for (s of statuses; track s) { <option>{{ s }}</option> }
+            </select>
+          </label>
+          <label>Tracking Number
+            <input [ngModel]="editTracking()" (ngModelChange)="editTracking.set($event)" placeholder="e.g. USPS3384211">
+          </label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" (click)="close()">Close</button>
+        <button class="btn btn-dark" (click)="updateOrder()">Update Order</button>
+      </div>
+    </div>
   </div>
 }

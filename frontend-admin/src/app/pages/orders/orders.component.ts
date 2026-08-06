@@ -4,6 +4,7 @@ import { DataService } from '../../services/data.service';
 import { Order, OrderStatus, badgeClass } from '../../models';
 
 const STATUS_FLOW: OrderStatus[] = ['Pending', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+const PAGE_SIZE = 6;
 
 @Component({
   selector: 'sf-orders',
@@ -17,9 +18,17 @@ export class OrdersComponent implements OnInit {
   orders = signal<Order[]>([]);
   search = signal('');
   statusFilter = signal<'' | OrderStatus>('');
-  selected = signal<Order | null>(null);
+  page = signal(1);
 
-  /** Search by order id / customer + status filter (ADM-05). */
+  // ---------- Detail modal (ADM-05) ----------
+  selected = signal<Order | null>(null);
+  editStatus = signal<OrderStatus>('Pending');
+  editTracking = signal('');
+
+  flow = STATUS_FLOW;
+  statuses: OrderStatus[] = [...STATUS_FLOW, 'Cancelled'];
+  badgeClass = badgeClass;
+
   filtered = computed(() => {
     const q = this.search().toLowerCase();
     return this.orders().filter(o => {
@@ -29,26 +38,37 @@ export class OrdersComponent implements OnInit {
     });
   });
 
-  badgeClass = badgeClass;
-  statuses: OrderStatus[] = [...STATUS_FLOW, 'Cancelled'];
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / PAGE_SIZE)));
+  paged = computed(() => this.filtered().slice((this.page() - 1) * PAGE_SIZE, this.page() * PAGE_SIZE));
+  pages = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
 
-  /** Advance an order to its next lifecycle status (Section 7 of the BRD). */
-  advance(o: Order): void {
-    const i = STATUS_FLOW.indexOf(o.status);
-    if (i < 0 || i === STATUS_FLOW.length - 1) return;
-    const next = STATUS_FLOW[i + 1];
-    this.orders.set(this.orders().map(x => x.id === o.id ? { ...x, status: next } : x));
-    if (this.selected()?.id === o.id) this.selected.set({ ...o, status: next });
+  /** Index of an order's status in the lifecycle (Cancelled → -1, no progress). */
+  stepIndex(status: OrderStatus): number {
+    return STATUS_FLOW.indexOf(status);
   }
 
-  canAdvance(o: Order): boolean {
-    const i = STATUS_FLOW.indexOf(o.status);
-    return i >= 0 && i < STATUS_FLOW.length - 1;
+  open(o: Order): void {
+    this.selected.set(o);
+    this.editStatus.set(o.status);
+    this.editTracking.set(o.tracking);
   }
 
-  nextStatus(o: Order): OrderStatus | null {
-    const i = STATUS_FLOW.indexOf(o.status);
-    return this.canAdvance(o) ? STATUS_FLOW[i + 1] : null;
+  close(): void {
+    this.selected.set(null);
+  }
+
+  /** Apply the modal's status + tracking changes (API mode: PUT /api/v1/admin/orders/:id). */
+  updateOrder(): void {
+    const o = this.selected();
+    if (!o) return;
+    this.orders.set(this.orders().map(x =>
+      x.id === o.id ? { ...x, status: this.editStatus(), tracking: this.editTracking() } : x,
+    ));
+    this.close();
+  }
+
+  setPage(p: number): void {
+    this.page.set(Math.min(Math.max(1, p), this.totalPages()));
   }
 
   ngOnInit(): void {
