@@ -1,0 +1,52 @@
+@if (product(); as p) {
+  <div class="page">
+    <div class="crumb">Home / Shop / <b>{{ p.name }}</b></div>
+    <div class="pd">
+      <div class="media-lg">{{ p.emoji }}</div>
+      <div>
+        <div class="cat">{{ p.sub }}</div>
+        <h1>{{ p.name }}</h1>
+        <div class="rate">★ {{ p.rating }} · {{ p.stock > 0 ? p.stock + ' in stock' : 'Out of stock' }}</div>
+        <div class="price">${{ finalPrice(p) }}@if (p.discount) { <span class="old">${{ p.price }}</span> <span class="chip">Save {{ p.discount }}%</span> }</div>
+        <p class="desc">{{ p.desc }}</p>
+        <div class="qty">
+          <button (click)="qty.set(qty() > 1 ? qty() - 1 : 1)">−</button><span>{{ qty() }}</span><button (click)="qty.set(qty() + 1)">+</button>
+        </div>
+        <div class="actions">
+          <button class="btn btn-dark btn-lg" [disabled]="p.stock === 0" (click)="addToCart()">
+            {{ added() ? '✓ Added to Cart' : 'Add to Cart' }}
+          </button>
+          <button class="btn btn-ghost btn-lg" (click)="cart.toggleWish(p)">{{ cart.isWished(p) ? '♥ Wishlisted' : '♡ Wishlist' }}</button>
+        </div>
+        <div class="meta"><span>🚚 Free shipping over $99</span><span>💵 Cash on Delivery</span><span>↩ 14-day returns</span></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button [class.active]="tab() === 'desc'" (click)="tab.set('desc')">Description</button>
+      <button [class.active]="tab() === 'ship'" (click)="tab.set('ship')">Shipping &amp; Returns</button>
+    </div>
+    @if (tab() === 'desc') {
+      <p class="pane">{{ p.desc }}</p>
+    } @else {
+      <p class="pane">Orders are delivered via standard courier within 5–8 business days. Cash on Delivery is available on every order. If something isn't right, you can return it unused within 14 days of delivery for a full refund.</p>
+    }
+
+    @if (related().length) {
+      <h2>You may also like</h2>
+      <div class="grid">
+        @for (r of related(); track r.id) {
+          <div class="pcard">
+            <div class="media" [routerLink]="['/product', r.id]">{{ r.emoji }}</div>
+            <div class="body">
+              <div class="name" [routerLink]="['/product', r.id]">{{ r.name }}</div>
+              <div class="row"><span class="price">${{ finalPrice(r) }}</span><button class="add" (click)="cart.add(r)">+</button></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+} @else {
+  <div class="page"><p>Product not found. <a routerLink="/shop">Back to shop</a></p></div>
+}

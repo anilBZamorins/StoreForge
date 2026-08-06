@@ -1,0 +1,15 @@
+@use '../shared';
+
+.crumb { font-size: 12.5px; color: #6b6558; margin-bottom: 8px; }
+.crumb b { color: #20201c; }
+.layout { display: grid; grid-template-columns: 230px 1fr; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.filters h4 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b6558; margin: 22px 0 12px; }
+.filters h4:first-child { margin-top: 0; }
+.frow { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; font-size: 13.5px; cursor: pointer; }
+.frow input { width: 16px; height: 16px; accent-color: var(--flame); }
+.clear { font-size: 12.5px; color: var(--flame); font-weight: 600; cursor: pointer; margin-top: 18px; }
+.bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; font-size: 13px; color: #6b6558; }
+.bar select { border: 1px solid #e8e3db; border-radius: 9px; padding: 9px 12px; font-size: 13px; font-family: var(--font-body); background: #fff; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }

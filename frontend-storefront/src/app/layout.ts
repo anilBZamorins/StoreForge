@@ -42,6 +42,7 @@ import { CartService, DataService } from './services/data.service';
     .nav-icons a:hover { background: #fbf9f5; }
     .pill { background: var(--flame); color: #fff; font-size: 10.5px; font-weight: 700; min-width: 17px; height: 17px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
     footer { background: #fbf9f5; border-top: 1px solid #e8e3db; padding: 26px 0; font-size: 13px; color: #6b6558; margin-top: 60px; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
     .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
   `,
 })

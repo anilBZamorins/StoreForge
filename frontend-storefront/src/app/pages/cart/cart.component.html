@@ -1,0 +1,47 @@
+<div class="page">
+  <div class="crumb">Home / <b>Cart</b></div>
+  <h1>Your Cart</h1>
+  @if (!cart.items().length) {
+    <div class="empty">
+      <div class="ic">🛒</div>
+      <h3>Your cart is empty</h3>
+      <p>Add something you love — it'll show up here.</p>
+      <a class="btn btn-dark" routerLink="/shop">Browse the Shop</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <div>
+        @if (remainingForFree > 0) {
+          <div class="freeship">
+            Add <b>${{ remainingForFree }}</b> more for free shipping
+            <div class="fs-bar"><i [style.width.%]="freeShipPct"></i></div>
+          </div>
+        } @else {
+          <div class="freeship ok">✓ Your order qualifies for free shipping</div>
+        }
+        @for (i of cart.items(); track i.product.id) {
+          <div class="line">
+            <div class="thumb" [routerLink]="['/product', i.product.id]">{{ i.product.emoji }}</div>
+            <div class="info">
+              <b [routerLink]="['/product', i.product.id]">{{ i.product.name }}</b>
+              <span class="unit">${{ finalPrice(i.product) }} each</span>
+              <span class="rm" (click)="cart.remove(i.product.id)">Remove</span>
+            </div>
+            <div class="qty">
+              <button (click)="cart.setQty(i.product.id, i.qty - 1)">−</button><span>{{ i.qty }}</span><button (click)="cart.setQty(i.product.id, i.qty + 1)">+</button>
+            </div>
+            <div class="lt">${{ finalPrice(i.product) * i.qty }}</div>
+          </div>
+        }
+      </div>
+      <div class="summary">
+        <h3>Order Summary</h3>
+        <div class="srow"><span>Subtotal</span><span>${{ cart.subtotal() }}</span></div>
+        <div class="srow"><span>Shipping</span><span>{{ cart.shipping() === 0 ? 'Free' : '$' + cart.shipping() }}</span></div>
+        <div class="srow total"><span>Total</span><span>${{ cart.total() }}</span></div>
+        <a class="btn btn-flame btn-block btn-lg" routerLink="/checkout">Proceed to Checkout</a>
+        <a class="btn btn-ghost btn-block" routerLink="/shop">Continue Shopping</a>
+      </div>
+    </div>
+  }
+</div>

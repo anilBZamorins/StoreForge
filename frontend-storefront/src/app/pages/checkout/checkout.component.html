@@ -1,0 +1,63 @@
+<div class="page">
+  @if (!orderId()) {
+    <div class="crumb">Home / Cart / <b>Checkout</b></div>
+    <h1>Checkout</h1>
+    <div class="layout">
+      <div>
+        <div class="fcard">
+          <h3><span class="num">1</span> Delivery Details</h3>
+          <label>Full Name <input [class.err]="invalid(name())" [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="Jane Cooper"></label>
+          <div class="r2">
+            <label>Email <input [ngModel]="email()" (ngModelChange)="email.set($event)" placeholder="jane@email.com"></label>
+            <label>Phone <input [class.err]="invalid(phone())" [ngModel]="phone()" (ngModelChange)="phone.set($event)" placeholder="+1 555 000 0000"></label>
+          </div>
+          <label>Address <input [class.err]="invalid(address())" [ngModel]="address()" (ngModelChange)="address.set($event)" placeholder="221 Birchwood Lane"></label>
+          <div class="r3">
+            <label>City <input [class.err]="invalid(city())" [ngModel]="city()" (ngModelChange)="city.set($event)" placeholder="Austin"></label>
+            <label>State <input [ngModel]="state()" (ngModelChange)="state.set($event)" placeholder="TX"></label>
+            <label>Zip <input [ngModel]="zip()" (ngModelChange)="zip.set($event)" placeholder="78701"></label>
+          </div>
+          @if (submitted() && !valid()) { <p class="verr">Please fill in name, phone, address and city.</p> }
+        </div>
+        <div class="fcard">
+          <h3><span class="num">2</span> Payment Method</h3>
+          <label class="pay" [class.sel]="payMethod() === 'COD'" (click)="payMethod.set('COD')">
+            <input type="radio" name="pay" [checked]="payMethod() === 'COD'">
+            <span><b>Cash on Delivery</b><small>Pay in cash when your order is delivered</small></span>
+          </label>
+          <label class="pay disabled" title="Card payments arrive in Phase 2">
+            <input type="radio" name="pay" disabled>
+            <span><b>Credit / Debit Card</b><small>Coming soon — Visa, Mastercard, Amex</small></span>
+          </label>
+        </div>
+      </div>
+      <div class="summary">
+        <h3>Order Summary</h3>
+        @for (i of cart.items(); track i.product.id) {
+          <div class="srow"><span>{{ i.product.emoji }} {{ i.product.name }} × {{ i.qty }}</span><span>${{ finalPrice(i.product) * i.qty }}</span></div>
+        }
+        <div class="srow"><span>Subtotal</span><span>${{ cart.subtotal() }}</span></div>
+        <div class="srow"><span>Shipping</span><span>{{ cart.shipping() === 0 ? 'Free' : '$' + cart.shipping() }}</span></div>
+        <div class="srow total"><span>Total</span><span>${{ cart.total() }}</span></div>
+        <button class="btn btn-flame btn-block btn-lg" (click)="placeOrder()" [disabled]="!cart.items().length || placing()">
+          {{ placing() ? 'Placing order…' : 'Place Order' }}
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="confirm">
+      <div class="check">✓</div>
+      <h1>Order confirmed!</h1>
+      <p>Thanks for shopping with us. A confirmation email is on its way.</p>
+      <div class="cbox">
+        <div class="cr"><span>Order Number</span><b>{{ orderId() }}</b></div>
+        <div class="cr"><span>Payment Method</span><b>Cash on Delivery</b></div>
+        <div class="cr"><span>Estimated Delivery</span><b>{{ eta() }}</b></div>
+      </div>
+      <div class="cbtns">
+        <a class="btn btn-ghost" routerLink="/">Continue Shopping</a>
+        <a class="btn btn-dark" routerLink="/track">Track Your Order</a>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,28 @@
+<div class="page">
+  <div class="crumb">Home / <b>Wishlist</b></div>
+  <h1>Your Wishlist</h1>
+  @if (!cart.wishlist().length) {
+    <div class="empty">
+      <div class="ic">🤍</div>
+      <h3>Your wishlist is empty</h3>
+      <p>Save pieces you love and come back to them anytime.</p>
+      <a class="btn btn-dark" routerLink="/shop">Browse the Shop</a>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (p of cart.wishlist(); track p.id) {
+        <div class="pcard">
+          <div class="media" [routerLink]="['/product', p.id]">{{ p.emoji }}
+            <button class="wish-btn on" title="Remove from wishlist" (click)="cart.toggleWish(p); $event.stopPropagation()">♥</button>
+          </div>
+          <div class="body">
+            <div class="cat">{{ p.sub }}</div>
+            <div class="name" [routerLink]="['/product', p.id]">{{ p.name }}</div>
+            <div class="row"><span class="price">${{ finalPrice(p) }}</span></div>
+            <button class="btn btn-ghost btn-block mv" (click)="moveToCart(p)">Move to Cart</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

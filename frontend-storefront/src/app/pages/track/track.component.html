@@ -1,0 +1,23 @@
+<div class="page">
+  <div class="crumb">Home / <b>Track Order</b></div>
+  <h1>Your Orders</h1>
+  <p class="sub">Follow every order from placed to delivered.</p>
+  <div class="lookup">
+    <input placeholder="Search by order number, e.g. AL-3081" [ngModel]="search()" (ngModelChange)="search.set($event)">
+  </div>
+  @for (o of filtered(); track o.id) {
+    <div class="ocard">
+      <div class="top"><b>{{ o.id }}</b><span [class]="'badge ' + badgeClass(o.status)">{{ o.status }}</span></div>
+      <div class="meta">{{ o.date }} · {{ o.items }} items · ${{ o.total }}</div>
+      <div class="steps">
+        @for (s of flow; track s; let i = $index) {
+          <div class="step" [class.done]="i < stepIndex(o)" [class.now]="i === stepIndex(o)">
+            <span class="dot"></span><span class="lbl">{{ s }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  } @empty {
+    <p class="none">No orders found for "{{ search() }}".</p>
+  }
+</div>

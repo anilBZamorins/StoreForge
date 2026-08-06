@@ -1,0 +1,64 @@
+<div class="page">
+  @if (slides().length) {
+    <div class="hero" [style.background]="heroBg()">
+      <div class="inner">
+        <div class="eyebrow">{{ slides()[idx()].eyebrow }}</div>
+        <h1>{{ slides()[idx()].title }}</h1>
+        <p>{{ slides()[idx()].sub }}</p>
+        <a class="btn btn-flame btn-lg" routerLink="/shop">Shop Now</a>
+      </div>
+      <button class="arrow prev" (click)="prev()">‹</button>
+      <button class="arrow next" (click)="next()">›</button>
+      <div class="dots">
+        @for (s of slides(); track $index) {
+          <button [class.on]="$index === idx()" (click)="go($index)"></button>
+        }
+      </div>
+    </div>
+  }
+
+  <h2>Shop by category</h2>
+  <div class="cats">
+    @for (c of categories(); track c.id) {
+      <a class="ccard" routerLink="/shop" [queryParams]="{ category: c.id }"
+         [style.background]="'linear-gradient(135deg,' + c.color1 + ',' + c.color2 + ')'">{{ c.name }}</a>
+    }
+  </div>
+
+  <h2>Featured products</h2>
+  <div class="grid">
+    @for (p of featured(); track p.id) {
+      <div class="pcard">
+        <div class="media" [routerLink]="['/product', p.id]">{{ p.emoji }}@if (p.discount) { <span class="tag">-{{ p.discount }}%</span> }
+          <button class="wish-btn" [class.on]="cart.isWished(p)" (click)="cart.toggleWish(p); $event.stopPropagation()">♥</button>
+        </div>
+        <div class="body">
+          <div class="cat">{{ p.sub }}</div>
+          <div class="name" [routerLink]="['/product', p.id]">{{ p.name }}</div>
+          <div class="rate">★ {{ p.rating }}</div>
+          <div class="row">
+            <span class="price">${{ finalPrice(p) }}@if (p.discount) { <span class="old">${{ p.price }}</span> }</span>
+            <button class="add" (click)="cart.add(p)">+</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <h2>New arrivals</h2>
+  <div class="grid">
+    @for (p of latest(); track p.id) {
+      <div class="pcard">
+        <div class="media" [routerLink]="['/product', p.id]">{{ p.emoji }}</div>
+        <div class="body">
+          <div class="cat">{{ p.sub }}</div>
+          <div class="name" [routerLink]="['/product', p.id]">{{ p.name }}</div>
+          <div class="row">
+            <span class="price">${{ finalPrice(p) }}</span>
+            <button class="add" (click)="cart.add(p)">+</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

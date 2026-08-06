@@ -1,0 +1,19 @@
+<div class="page">
+  <div class="crumb">Home / <b>Contact</b></div>
+  <h1>We're here to help</h1>
+  <p class="sub">Questions about an order or a product? Reach out below.</p>
+  @if (sent()) {
+    <p class="ok">✓ Message sent — we'll reply within one business day.</p>
+  } @else {
+    <div class="form">
+      <input placeholder="Full Name" [ngModel]="name()" (ngModelChange)="name.set($event)">
+      <div class="r2">
+        <input placeholder="Email" [ngModel]="email()" (ngModelChange)="email.set($event)">
+        <input placeholder="Order Number (optional)" [ngModel]="orderNo()" (ngModelChange)="orderNo.set($event)">
+      </div>
+      <textarea placeholder="How can we help?" [ngModel]="message()" (ngModelChange)="message.set($event)"></textarea>
+      @if (submitted() && !valid()) { <p class="verr">Please provide your name, a valid email, and a message.</p> }
+      <button class="btn btn-flame" (click)="submit()">Send Message</button>
+    </div>
+  }
+</div>

@@ -1,0 +1,19 @@
+@use '../shared';
+.page { max-width: 760px; }
+.crumb { font-size: 12.5px; color: #6b6558; margin-bottom: 8px; }
+.crumb b { color: #20201c; }
+.sub { color: #6b6558; font-size: 14px; margin: -8px 0 18px; }
+.lookup input { width: 100%; border: 1px solid #e8e3db; border-radius: 9px; padding: 11px 13px; font-size: 13.8px; font-family: var(--font-body); background: #fbf9f5; outline: none; margin-bottom: 18px; }
+.lookup input:focus { border-color: var(--flame); background: #fff; }
+.ocard { border: 1px solid #e8e3db; border-radius: 16px; padding: 20px 22px; margin-bottom: 16px; background: #fff; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.meta { font-size: 12.5px; color: #6b6558; margin: 6px 0 18px; }
+.steps { display: flex; justify-content: space-between; position: relative; }
+.steps::before { content: ''; position: absolute; top: 10px; left: 5%; right: 5%; height: 2px; background: #e8e3db; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; position: relative; z-index: 1; }
+.dot { width: 20px; height: 20px; border-radius: 50%; background: #e8e3db; }
+.step.done .dot { background: #3f8f5f; }
+.step.now .dot { background: var(--flame); }
+.lbl { font-size: 10px; color: #6b6558; text-align: center; max-width: 66px; }
+.step.done .lbl, .step.now .lbl { color: #20201c; font-weight: 600; }
+.none { color: #6b6558; }

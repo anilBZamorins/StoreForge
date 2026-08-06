@@ -1,0 +1,13 @@
+@use '../shared';
+.page { max-width: 560px; }
+.crumb { font-size: 12.5px; color: #6b6558; margin-bottom: 8px; }
+.crumb b { color: #20201c; }
+.sub { color: #6b6558; font-size: 14px; margin: -8px 0 20px; }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.r2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+input, textarea { border: 1px solid #e8e3db; border-radius: 9px; padding: 11px 13px; font-size: 13.8px; font-family: var(--font-body); background: #fbf9f5; outline: none; }
+input:focus, textarea:focus { border-color: var(--flame); background: #fff; }
+textarea { min-height: 110px; resize: vertical; }
+.btn { align-self: flex-start; }
+.ok { color: #3f8f5f; font-weight: 600; }
+.verr { color: #c4453e; font-size: 12.5px; margin: 0; }

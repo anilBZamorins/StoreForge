@@ -1,0 +1,53 @@
+<div class="page">
+  <div class="crumb">Home / <b>Shop</b></div>
+  <h1>Shop All</h1>
+  <div class="layout">
+    <aside class="filters">
+      <h4>Category</h4>
+      <label class="frow"><input type="radio" name="cat" value="" [checked]="!categoryFilter()" (change)="categoryFilter.set('')"> All</label>
+      @for (c of categories(); track c.id) {
+        <label class="frow"><input type="radio" name="cat" [value]="c.id" [checked]="categoryFilter() === c.id" (change)="categoryFilter.set(c.id)"> {{ c.name }}</label>
+      }
+      <h4>Price</h4>
+      <label class="frow"><input type="radio" name="price" value="" [checked]="!priceBand()" (change)="priceBand.set('')"> Any price</label>
+      <label class="frow"><input type="radio" name="price" [checked]="priceBand() === '0-50'" (change)="priceBand.set('0-50')"> Under $50</label>
+      <label class="frow"><input type="radio" name="price" [checked]="priceBand() === '50-150'" (change)="priceBand.set('50-150')"> $50 – $150</label>
+      <label class="frow"><input type="radio" name="price" [checked]="priceBand() === '150-300'" (change)="priceBand.set('150-300')"> $150 – $300</label>
+      <label class="frow"><input type="radio" name="price" [checked]="priceBand() === '300-9999'" (change)="priceBand.set('300-9999')"> Over $300</label>
+      <h4>Availability</h4>
+      <label class="frow"><input type="checkbox" [checked]="inStockOnly()" (change)="inStockOnly.set(!inStockOnly())"> In stock only</label>
+      <div class="clear" (click)="clearFilters()">Clear all filters</div>
+    </aside>
+
+    <div>
+      <div class="bar">
+        <span>{{ filtered().length }} products</span>
+        <select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+          <option value="featured">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+      <div class="grid grid-3">
+        @for (p of filtered(); track p.id) {
+          <div class="pcard">
+            <div class="media" [routerLink]="['/product', p.id]">{{ p.emoji }}@if (p.discount) { <span class="tag">-{{ p.discount }}%</span> }
+              <button class="wish-btn" [class.on]="cart.isWished(p)" (click)="cart.toggleWish(p); $event.stopPropagation()">♥</button>
+            </div>
+            <div class="body">
+              <div class="cat">{{ p.sub }}</div>
+              <div class="name" [routerLink]="['/product', p.id]">{{ p.name }}</div>
+              <div class="rate">★ {{ p.rating }}</div>
+              <div class="row">
+                <span class="price">${{ finalPrice(p) }}@if (p.discount) { <span class="old">${{ p.price }}</span> }</span>
+                @if (p.stock > 0) { <button class="add" (click)="cart.add(p)">+</button> }
+              </div>
+              @if (p.stock === 0) { <div class="oos">Out of stock</div> }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
