@@ -17,3 +17,6 @@ yarn-error.log
 /.vscode
 *.log
 .gitkeep
+/backend/storage
+/backend/vendor
+/backend/cache
