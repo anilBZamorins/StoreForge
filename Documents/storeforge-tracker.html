@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoreForge — Project Task Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --flame:#FF5A36; --flame-dim:#FFE3DA; --ink:#0F172A; --ink-2:#16213E;
+    --text:#101828; --muted:#667085; --border:#E4E7EC; --canvas:#F7F8FB; --surface:#FFF;
+    --done-bg:#E4F6EA; --done-fg:#1F9D55; --prog-bg:#E7F0FB; --prog-fg:#2A6BAE; --pend-bg:#FFF4E0; --pend-fg:#B4790C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--text);}
+  h1,h2,h3{font-family:'Sora',sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 70px;}
+  header{background:radial-gradient(ellipse at top right, rgba(255,90,54,0.16) 0%, transparent 55%), linear-gradient(135deg,var(--ink),var(--ink-2));color:#fff;padding:40px 0 34px;margin-bottom:26px;}
+  header .wrap{padding-bottom:0;}
+  .logo{display:inline-flex;align-items:center;gap:9px;font-family:'Sora',sans-serif;font-weight:800;font-size:17px;margin-bottom:14px;}
+  .logo-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--flame),#ff8a5c);display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+  h1{margin:0 0 6px;font-size:28px;}
+  header p{margin:0;color:#9aa5b8;font-size:13.5px;}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:10px;}
+  @media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px 18px;}
+  .stat .n{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;}
+  .stat .l{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;}
+  .stat.done .n{color:var(--done-fg);} .stat.prog .n{color:var(--prog-fg);} .stat.pend .n{color:var(--pend-fg);}
+
+  .totalbar{height:10px;background:#e9edf3;border-radius:20px;overflow:hidden;display:flex;margin:6px 0 26px;}
+  .totalbar i{display:block;height:100%;}
+
+  .filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .fbtn{border:1px solid var(--border);background:var(--surface);border-radius:20px;padding:7px 15px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;}
+  .fbtn.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+  .group{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden;}
+  .ghead{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--border);background:#fafbfd;}
+  .ghead h2{margin:0;font-size:15.5px;flex:1;}
+  .gcount{font-size:11.5px;color:var(--muted);font-weight:600;}
+  .gbar{width:120px;height:6px;background:#e9edf3;border-radius:20px;overflow:hidden;}
+  .gbar i{display:block;height:100%;background:var(--done-fg);border-radius:20px;}
+  .task{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);font-size:13.5px;}
+  .task:last-child{border-bottom:none;}
+  .task .ic{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;font-weight:700;}
+  .task.done .ic{background:var(--done-bg);color:var(--done-fg);}
+  .task.prog .ic{background:var(--prog-bg);color:var(--prog-fg);}
+  .task.pend .ic{background:var(--pend-bg);color:var(--pend-fg);}
+  .task .t{flex:1;}
+  .task .d{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .task.done .t > span:first-child{}
+  .badge{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .task.done .badge{background:var(--done-bg);color:var(--done-fg);}
+  .task.prog .badge{background:var(--prog-bg);color:var(--prog-fg);}
+  .task.pend .badge{background:var(--pend-bg);color:var(--pend-fg);}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;margin-top:26px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark">SF</span>StoreForge</div>
+    <h1>Project Task Tracker</h1>
+    <p>Everything built so far and what's next · updated August 6, 2026</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="n" id="nTotal">0</div><div class="l">Total tasks</div></div>
+    <div class="stat done"><div class="n" id="nDone">0</div><div class="l">Done</div></div>
+    <div class="stat prog"><div class="n" id="nProg">0</div><div class="l">In progress</div></div>
+    <div class="stat pend"><div class="n" id="nPend">0</div><div class="l">Pending</div></div>
+  </div>
+  <div class="totalbar" id="totalBar"></div>
+
+  <div class="filters">
+    <button class="fbtn on" data-f="all">All</button>
+    <button class="fbtn" data-f="done">✓ Done</button>
+    <button class="fbtn" data-f="prog">◐ In progress</button>
+    <button class="fbtn" data-f="pend">○ Pending</button>
+  </div>
+
+  <div id="groups"></div>
+  <footer>StoreForge · generated from the project work log · Documents/storeforge-tracker.html</footer>
+</div>
+
+<script>
+const GROUPS = [
+  { name: '📄 Documents & Design', tasks: [
+    ['done', 'Mockup review & summaries', 'All 3 Phase-1 mockups analysed (website, admin, storefront)'],
+    ['done', 'Color & Design Token Guide', 'v1.2 — brand palette, status badges, premium gradient system, click-to-copy'],
+    ['done', 'Premium gradient theme applied to mockups', 'Ink gradient + flame glow across all three mockups'],
+    ['done', 'Business Requirements Document (BRD)', 'v1.0 Word doc — 12 pages, ~45 functional requirements'],
+    ['done', 'API Reference & Database Schema doc', 'v1.1 — every endpoint + landlord/tenant schema + Stripe flow'],
+  ]},
+  { name: '🏗️ Project Setup', tasks: [
+    ['done', 'Repository structure', 'frontend-website / frontend-admin / frontend-storefront / backend / deploy / Documents'],
+    ['done', 'DigitalOcean deploy kit', 'Nginx per-hostname config, server-setup.sh, deploy.sh, backup script, SSL guide'],
+    ['pend', 'Git checkpoint commit & push', 'Repo has many uncommitted changes — commit and push to GitHub'],
+    ['pend', 'Clean up _to_delete/ and obsolete files', 'Transfer archives and superseded files marked for manual deletion'],
+  ]},
+  { name: '🌐 frontend-website (Angular)', tasks: [
+    ['done', 'App scaffold + design tokens + layout', 'Angular 20, SCSS tokens from the color guide'],
+    ['done', 'Pages with mock.ts + API switch', 'Home, features, pricing (billing toggle), contact, register, login'],
+    ['pend', 'Stripe Checkout redirect for paid signups', 'Handle { checkoutUrl } response + poll /register/status after return'],
+    ['pend', 'Per-component split (like admin/storefront)', 'Pages still combined in pages.ts'],
+  ]},
+  { name: '🛠️ frontend-admin (Angular)', tasks: [
+    ['done', 'Per-page components with separate logic', '10 components — dashboard, products, categories, banners, orders, carts, customers, reports, billing, settings'],
+    ['done', 'Dashboard matched to mockup', 'KPI trend bars, Your Plan card, Carts Pending Checkout, iconed sidebar + topbar'],
+    ['done', 'Products page + Add/Edit Product modal', 'Search, filters, auto-SKU, derived stock status'],
+    ['done', 'Categories tree + Add/Edit modals', 'Expand/collapse, per-row edit/delete, sub-category parent select'],
+    ['done', 'Orders detail modal', 'Tracking steps, status update + tracking number, pagination'],
+    ['done', 'ng serve buildTarget fix', 'angular.json serve options fixed in all 3 apps'],
+    ['pend', 'Wire login + Sanctum token interceptor', 'Attach Bearer token to /api calls when useMocks:false'],
+    ['pend', 'Align Banners / Reports / Billing / Settings to mockup', 'Remaining screens to pixel-match'],
+  ]},
+  { name: '🛍️ frontend-storefront (Angular)', tasks: [
+    ['done', 'Per-page components with separate logic', '8 components — home slider, shop filters, product detail, wishlist, cart, checkout, track, contact'],
+    ['done', 'Working cart, wishlist, COD checkout', 'Free-shipping nudge, validation, confirmation + tracking'],
+    ['done', 'Tailwind experiment reverted', 'Back to SCSS + separate .html/.scss per request'],
+    ['pend', 'Send X-Store header in API mode', 'So the API resolves the tenant during local dev'],
+  ]},
+  { name: '⚙️ backend (Laravel API)', tasks: [
+    ['done', 'composer.json (PHP 8.3) + .env files', 'Framework ^12, Sanctum ^4, stripe-php ^17'],
+    ['done', 'Sanctum bearer-token auth', 'Login with store/super portals, logout, me'],
+    ['done', 'Database-per-tenant architecture', 'Landlord DB storeforge + one DB per store, TenantDatabase/ProvisionTenant services, tenants:migrate'],
+    ['done', 'All APIs for the 3 frontends', 'Shapes match each Angular DataService exactly'],
+    ['done', 'Seeders — Aura Living demo tenant', 'Same dataset as the mock.ts files; provisions storeforge_auraliving'],
+    ['done', 'Stripe Checkout for paid registration', 'Session creation, signature-verified webhook provisioning, status polling'],
+    ['done', 'Base migrations fix (users table)', 'Guarded Laravel base tables shipped with the backend'],
+    ['prog', 'Run migrate --seed + verify on your machine', 'In progress on the D:\\bindhu copy — was blocked by the users-table error, now fixed'],
+    ['prog', 'Stripe keys + webhook testing', 'Set STRIPE_SECRET / STRIPE_WEBHOOK_SECRET in .env, test with stripe listen'],
+    ['pend', 'Super Admin console APIs (SAD-02..04)', 'Tenant list, platform reports, plan administration'],
+  ]},
+  { name: '🚀 Launch', tasks: [
+    ['pend', 'End-to-end test: apps on real API', 'Flip useMocks:false in all 3 apps against seeded backend'],
+    ['pend', 'Super Admin console frontend', 'Fourth surface for the platform operator'],
+    ['pend', 'Deploy to DigitalOcean droplet', 'DNS wildcard, SSL, deploy.sh, supervisor workers'],
+  ]},
+];
+
+const LBL = { done: 'DONE', prog: 'IN PROGRESS', pend: 'PENDING' };
+const ICO = { done: '✓', prog: '◐', pend: '○' };
+let filter = 'all';
+
+function render() {
+  const root = document.getElementById('groups');
+  root.innerHTML = '';
+  let done = 0, prog = 0, pend = 0;
+  GROUPS.forEach(g => {
+    const gdone = g.tasks.filter(t => t[0] === 'done').length;
+    g.tasks.forEach(t => { if (t[0] === 'done') done++; else if (t[0] === 'prog') prog++; else pend++; });
+    const shown = g.tasks.filter(t => filter === 'all' || t[0] === filter);
+    if (!shown.length) return;
+    const div = document.createElement('div');
+    div.className = 'group';
+    div.innerHTML = `
+      <div class="ghead"><h2>${g.name}</h2>
+        <span class="gcount">${gdone}/${g.tasks.length} done</span>
+        <span class="gbar"><i style="width:${Math.round(gdone / g.tasks.length * 100)}%"></i></span>
+      </div>` +
+      shown.map(t => `
+        <div class="task ${t[0]}">
+          <span class="ic">${ICO[t[0]]}</span>
+          <span class="t">${t[1]}<div class="d">${t[2]}</div></span>
+          <span class="badge">${LBL[t[0]]}</span>
+        </div>`).join('');
+    root.appendChild(div);
+  });
+  const total = done + prog + pend;
+  nTotal.textContent = total; nDone.textContent = done; nProg.textContent = prog; nPend.textContent = pend;
+  totalBar.innerHTML =
+    `<i style="width:${done / total * 100}%;background:var(--done-fg)"></i>` +
+    `<i style="width:${prog / total * 100}%;background:var(--prog-fg)"></i>` +
+    `<i style="width:${pend / total * 100}%;background:#e5c37a"></i>`;
+}
+document.querySelectorAll('.fbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.fbtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  filter = b.dataset.f;
+  render();
+}));
+render();
+</script>
+</body>
+</html>
