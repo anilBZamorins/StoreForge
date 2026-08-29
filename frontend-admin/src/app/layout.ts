@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { MOCK_SIDEBAR_COUNTS, MOCK_STORE, MOCK_USER } from './mock';
+import { AuthService } from './auth/auth.service';
 
 interface PageMeta { title: string; sub: string; }
 
@@ -26,6 +27,15 @@ const PAGE_META: Record<string, PageMeta> = {
 })
 export class Layout {
   private router = inject(Router);
+  auth = inject(AuthService);
+
+  get userName(): string {
+    return this.auth.user()?.name ?? MOCK_USER.name;
+  }
+
+  get userInitials(): string {
+    return this.userName.split(' ').map(w => w.charAt(0)).slice(0, 2).join('').toUpperCase();
+  }
 
   store = MOCK_STORE;
   counts = MOCK_SIDEBAR_COUNTS;

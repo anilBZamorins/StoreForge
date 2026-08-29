@@ -25,7 +25,10 @@ nav a.active svg { opacity: 1; color: var(--flame-soft); }
 nav a.active::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px; background: var(--flame); border-radius: 0 3px 3px 0; }
 .count { margin-left: auto; background: rgba(255,255,255,0.1); color: #dbe1ee; font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; }
 nav a.active .count { background: var(--flame); color: #fff; }
-.sidebar-foot { padding: 12px 8px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #6a7690; }
+.sidebar-foot { padding: 12px 8px 0; border-top: 1px solid rgba(255,255,255,0.08); font-size: 11px; color: #6a7690; display: flex; flex-direction: column; gap: 10px; }
+.logout { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: #c3cbdc; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 500; }
+.logout:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.logout svg { width: 15px; height: 15px; }
 
 /* ---------- Main / topbar ---------- */
 .main { margin-left: 236px; flex: 1; min-width: 0; display: flex; flex-direction: column; }

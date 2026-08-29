@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { Layout } from './layout';
+import { authGuard } from './auth/auth.guard';
+import { LoginComponent } from './pages/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
@@ -12,9 +14,11 @@ import { BillingComponent } from './pages/billing/billing.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
+  { path: 'login', component: LoginComponent, title: 'Log In — Store Admin' },
   {
     path: '',
     component: Layout,
+    canActivate: [authGuard],
     children: [
       { path: '', component: DashboardComponent, title: 'Dashboard — Store Admin' },
       { path: 'products', component: ProductsComponent, title: 'Products — Store Admin' },
