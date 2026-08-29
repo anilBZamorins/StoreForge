@@ -4,7 +4,7 @@ export type StockStatus = 'Active' | 'Low Stock' | 'Out of Stock';
 
 export interface Category { id: string; name: string; subs: { id: string; name: string; count: number }[]; }
 export interface Product { id: number; name: string; sub: string; price: number; discount: number; stock: number; sku: string; emoji: string; }
-export interface Order { id: string; customer: string; date: string; items: number; total: number; status: OrderStatus; tracking: string; addr: string; phone: string; }
+export interface Order { id: string; orderId?: number; customer: string; date: string; items: number; total: number; status: OrderStatus; tracking: string; addr: string; phone: string; }
 export interface Customer { id: number; name: string; email: string; phone: string; city: string; orders: number; spent: number; joined: string; }
 export interface CartLine { pid: number; qty: number; }
 export interface Cart { id: number; customer: string; email: string; phone: string; items: CartLine[]; hoursIdle: number; }

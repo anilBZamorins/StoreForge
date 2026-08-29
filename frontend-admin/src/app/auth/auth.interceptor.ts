@@ -9,9 +9,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  const token = auth.token;
-  if (token && req.url.startsWith('/api/')) {
-    req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  if (req.url.startsWith('/api/')) {
+    // Accept header makes Laravel return JSON 401s instead of redirecting to a
+    // web login route that does not exist in an API-only backend.
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    const token = auth.token;
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    req = req.clone({ setHeaders: headers });
   }
 
   return next(req).pipe(

@@ -19,8 +19,11 @@ class OrderController extends Controller
     }
 
     /** PUT /api/v1/admin/orders/{order}  {status?, tracking?} */
-    public function update(Request $request, Order $order): JsonResponse
+    public function update(Request $request, int $order): JsonResponse
     {
+        // Resolved manually AFTER UseTenantDatabase has switched the connection.
+        $order = Order::findOrFail($order);
+
         $data = $request->validate([
             'status' => ['nullable', 'in:Pending,Processing,Shipped,Out for Delivery,Delivered,Cancelled'],
             'tracking' => ['nullable', 'string', 'max:60'],

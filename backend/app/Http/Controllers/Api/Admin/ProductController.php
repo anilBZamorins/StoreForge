@@ -30,27 +30,31 @@ class ProductController extends Controller
     }
 
     /** PUT /api/v1/admin/products/{product} */
-    public function update(Request $request, Product $product): JsonResponse
+    public function update(Request $request, int $product): JsonResponse
     {
-        $product->update($this->validated($request));
+        // Resolved manually AFTER UseTenantDatabase has switched the connection.
+        $product = Product::findOrFail($product);
+        $product->update($this->validated($request, $product->id));
 
         return response()->json($this->transform($product->fresh('category')));
     }
 
     /** DELETE /api/v1/admin/products/{product} */
-    public function destroy(Request $request, Product $product): JsonResponse
+    public function destroy(Request $request, int $product): JsonResponse
     {
-        $product->delete();
+        Product::findOrFail($product)->delete();
 
         return response()->json(['ok' => true]);
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, ?int $ignoreId = null): array
     {
+        $skuUnique = 'unique:tenant.products,sku' . ($ignoreId ? ',' . $ignoreId : '');
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'sub' => ['required', 'string'],                 // sub-category slug
-            'sku' => ['required', 'string', 'max:40'],
+            'sku' => ['required', 'string', 'max:40', $skuUnique],
             'price' => ['required', 'integer', 'min:0'],
             'discount' => ['nullable', 'integer', 'min:0', 'max:90'],
             'stock' => ['required', 'integer', 'min:0'],

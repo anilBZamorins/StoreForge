@@ -95,38 +95,51 @@ export class CategoriesComponent implements OnInit {
     const mode = this.modalMode();
     const slug = f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    if (mode === 'add-category') {
-      this.categories.set([...this.categories(), { id: slug, name: f.name, subs: [] }]);
-      this.open.set(new Set([...this.open(), slug]));
-    }
-    if (mode === 'edit-category') {
-      this.categories.set(this.categories().map(c => c.id === this.editingId() ? { ...c, name: f.name } : c));
-    }
-    if (mode === 'add-sub') {
-      this.categories.set(this.categories().map(c =>
-        c.id === f.parentId ? { ...c, subs: [...c.subs, { id: slug, name: f.name, count: 0 }] } : c,
-      ));
-    }
-    if (mode === 'edit-sub') {
-      this.categories.set(this.categories().map(c =>
-        c.id === this.editingParentId()
-          ? { ...c, subs: c.subs.map(s => s.id === this.editingId() ? { ...s, name: f.name } : s) }
-          : c,
-      ));
-    }
-    this.close();
+    const applyLocal = () => {
+      if (mode === 'add-category') {
+        this.categories.set([...this.categories(), { id: slug, name: f.name, subs: [] }]);
+        this.open.set(new Set([...this.open(), slug]));
+      }
+      if (mode === 'edit-category') {
+        this.categories.set(this.categories().map(c => c.id === this.editingId() ? { ...c, name: f.name } : c));
+      }
+      if (mode === 'add-sub') {
+        this.categories.set(this.categories().map(c =>
+          c.id === f.parentId ? { ...c, subs: [...c.subs, { id: slug, name: f.name, count: 0 }] } : c,
+        ));
+      }
+      if (mode === 'edit-sub') {
+        this.categories.set(this.categories().map(c =>
+          c.id === this.editingParentId()
+            ? { ...c, subs: c.subs.map(s => s.id === this.editingId() ? { ...s, name: f.name } : s) }
+            : c,
+        ));
+      }
+      this.close();
+    };
+
+    const request =
+      mode === 'add-category' ? this.data.createCategory({ name: f.name, description: f.description }) :
+      mode === 'add-sub' ? this.data.createCategory({ name: f.name, description: f.description, parentId: f.parentId }) :
+      this.data.updateCategory(this.editingId()!, { name: f.name, description: f.description });
+
+    request.subscribe(applyLocal);
   }
 
   deleteCategory(c: Category, ev: Event): void {
     ev.stopPropagation();
-    this.categories.set(this.categories().filter(x => x.id !== c.id));
+    this.data.deleteCategory(c.id).subscribe(() =>
+      this.categories.set(this.categories().filter(x => x.id !== c.id)),
+    );
   }
 
   deleteSub(parent: Category, subId: string, ev: Event): void {
     ev.stopPropagation();
-    this.categories.set(this.categories().map(c =>
-      c.id === parent.id ? { ...c, subs: c.subs.filter(s => s.id !== subId) } : c,
-    ));
+    this.data.deleteCategory(subId).subscribe(() =>
+      this.categories.set(this.categories().map(c =>
+        c.id === parent.id ? { ...c, subs: c.subs.filter(s => s.id !== subId) } : c,
+      )),
+    );
   }
 
   patch<K extends keyof CategoryForm>(key: K, value: CategoryForm[K]): void {

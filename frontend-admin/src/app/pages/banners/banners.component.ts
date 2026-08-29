@@ -12,10 +12,13 @@ export class BannersComponent implements OnInit {
 
   banners = signal<Banner[]>([]);
 
-  /** Activate/deactivate a banner in place (ADM-04). */
+  /** Activate/deactivate a banner — PUT /api/v1/admin/banners/{id} in API mode. */
   toggleStatus(b: Banner): void {
-    this.banners.set(
-      this.banners().map(x => x.id === b.id ? { ...x, status: x.status === 'Active' ? 'Inactive' : 'Active' } : x),
+    const nextActive = b.status !== 'Active';
+    this.data.updateBanner(b.id, { active: nextActive }).subscribe(() =>
+      this.banners.set(
+        this.banners().map(x => x.id === b.id ? { ...x, status: nextActive ? 'Active' : 'Inactive' } : x),
+      ),
     );
   }
 

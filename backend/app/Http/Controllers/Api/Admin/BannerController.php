@@ -27,8 +27,10 @@ class BannerController extends Controller
     }
 
     /** PUT /api/v1/admin/banners/{banner} — also used to toggle active */
-    public function update(Request $request, Banner $banner): JsonResponse
+    public function update(Request $request, int $banner): JsonResponse
     {
+        // Resolved manually AFTER UseTenantDatabase has switched the connection.
+        $banner = Banner::findOrFail($banner);
         $banner->update($this->validated($request, partial: true));
 
         return response()->json($this->transform($banner->fresh()));

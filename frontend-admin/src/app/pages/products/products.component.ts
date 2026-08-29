@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DataService } from '../../services/data.service';
+import { DataService, ProductPayload } from '../../services/data.service';
 import { Category, Product, StockStatus, stockStatus } from '../../models';
 
 interface ProductForm {
@@ -95,20 +95,35 @@ export class ProductsComponent implements OnInit {
   save(): void {
     const f = this.form();
     if (!f.name.trim() || f.price === null || f.stock === null) return;
+    const payload: ProductPayload = {
+      name: f.name, sub: f.sub, sku: f.sku, price: f.price,
+      discount: f.discount, stock: f.stock, shortDesc: f.shortDesc, fullDesc: f.fullDesc,
+    };
+
     if (this.editing()) {
       const id = this.editing()!.id;
-      this.products.set(this.products().map(p =>
-        p.id === id ? { ...p, name: f.name, sub: f.sub, sku: f.sku, price: f.price!, discount: f.discount, stock: f.stock! } : p,
-      ));
+      this.data.updateProduct(id, payload).subscribe(res => {
+        const updated = res ?? { ...this.editing()!, name: f.name, sub: f.sub, sku: f.sku, price: f.price!, discount: f.discount, stock: f.stock! };
+        this.products.set(this.products().map(p => (p.id === id ? { ...p, ...updated } : p)));
+        this.close();
+      });
     } else {
-      const nextId = Math.max(0, ...this.products().map(p => p.id)) + 1;
-      this.products.set([
-        ...this.products(),
-        { id: nextId, name: f.name, sub: f.sub, sku: f.sku, price: f.price!, discount: f.discount, stock: f.stock!, emoji: '📦' },
-      ]);
+      this.data.createProduct(payload).subscribe(res => {
+        const created = res ?? {
+          id: Math.max(0, ...this.products().map(p => p.id)) + 1,
+          name: f.name, sub: f.sub, sku: f.sku, price: f.price!, discount: f.discount, stock: f.stock!, emoji: '📦',
+        };
+        this.products.set([...this.products(), created]);
+        this.close();
+      });
     }
-    // API mode: POST/PUT /api/v1/admin/products via DataService.
-    this.close();
+  }
+
+  deleteProduct(p: { id: number }, ev: Event): void {
+    ev.stopPropagation();
+    this.data.deleteProduct(p.id).subscribe(() =>
+      this.products.set(this.products().filter(x => x.id !== p.id)),
+    );
   }
 
   patch<K extends keyof ProductForm>(key: K, value: ProductForm[K]): void {

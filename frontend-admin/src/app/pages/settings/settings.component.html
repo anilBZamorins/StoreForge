@@ -3,7 +3,7 @@
 
 <div class="tcard pad">
   <label>Store Name <input [ngModel]="storeName()" (ngModelChange)="storeName.set($event)"></label>
-  <label>Store Domain <input [value]="domain" disabled></label>
+  <label>Store Domain <input [value]="domain()" disabled></label>
   <label>Support Email <input [ngModel]="supportEmail()" (ngModelChange)="supportEmail.set($event)"></label>
   <label>Theme Color
     <span class="swatches">
@@ -12,6 +12,6 @@
       }
     </span>
   </label>
-  <button class="btn btn-dark" (click)="save()">Save Changes</button>
+  <button class="btn btn-dark" (click)="save()" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save Changes' }}</button>
   @if (saved()) { <span class="ok">✓ Settings saved</span> }
 </div>

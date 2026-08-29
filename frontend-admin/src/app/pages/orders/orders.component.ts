@@ -57,14 +57,17 @@ export class OrdersComponent implements OnInit {
     this.selected.set(null);
   }
 
-  /** Apply the modal's status + tracking changes (API mode: PUT /api/v1/admin/orders/:id). */
+  /** Apply the modal's status + tracking changes — PUT /api/v1/admin/orders/{id} in API mode. */
   updateOrder(): void {
     const o = this.selected();
     if (!o) return;
-    this.orders.set(this.orders().map(x =>
-      x.id === o.id ? { ...x, status: this.editStatus(), tracking: this.editTracking() } : x,
-    ));
-    this.close();
+    this.data.updateOrder(o.orderId ?? 0, { status: this.editStatus(), tracking: this.editTracking() })
+      .subscribe(() => {
+        this.orders.set(this.orders().map(x =>
+          x.id === o.id ? { ...x, status: this.editStatus(), tracking: this.editTracking() } : x,
+        ));
+        this.close();
+      });
   }
 
   setPage(p: number): void {
